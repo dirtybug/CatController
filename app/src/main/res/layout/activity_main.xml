@@ -1,0 +1,32 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <Button
+        android:id="@+id/openPopupButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Filter Band" />
+
+    <Button
+        android:id="@+id/openRadio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Open Radio" />
+
+    <TextView
+        android:id="@+id/logsView"
+        android:layout_width="match_parent"
+        android:layout_height="352dp"
+        android:background="#EFEFEF"
+        android:padding="8dp"
+        android:text="Logs will appear here" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/spotsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>

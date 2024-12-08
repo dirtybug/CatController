@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@android:color/white"
+    android:elevation="4dp"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp"
+        android:text="Select HF Bands"
+        android:textSize="18sp" />
+
+    <CheckBox
+        android:id="@+id/checkbox_160m"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="160m (1.8MHz)" />
+
+    <CheckBox
+        android:id="@+id/checkbox_80m"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="80m (3.5MHz)" />
+
+    <CheckBox
+        android:id="@+id/checkbox_40m"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="40m (7.0MHz)" />
+
+    <CheckBox
+        android:id="@+id/checkbox_20m"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="20m (14.0MHz)" />
+
+    <CheckBox
+        android:id="@+id/checkbox_15m"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="15m (21.0MHz)" />
+
+    <CheckBox
+        android:id="@+id/checkbox_10m"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="10m (28.0MHz)" />
+
+    <Button
+        android:id="@+id/exitButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Exit" />
+</LinearLayout>

@@ -1,0 +1,20 @@
+<resources>
+
+    <style name="Theme.CatController" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <!-- Customize your theme -->
+        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/teal_200</item>
+    </style>
+
+    <style name="Theme.CatController.NoActionBar" parent="Theme.MaterialComponents.DayNight">
+        <!-- Customize your theme -->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/teal_200</item>
+    </style>
+</resources>

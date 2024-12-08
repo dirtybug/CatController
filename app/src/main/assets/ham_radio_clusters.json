@@ -1,0 +1,30 @@
+[
+  {
+    "host": "7n4twl.homeip.net",
+    "port": 8000
+  },
+  {
+    "host": "ham.dyndns.org",
+    "port": 7300
+  },
+  {
+    "host": "bbs.cc.fer.hr",
+    "port": 8000
+  },
+  {
+    "host": "146.83.196.31",
+    "port": 9000
+  },
+  {
+    "host": "hamradio.isel.ipl.pt",
+    "port": 41112
+  },
+  {
+    "host": "217.129.65.194",
+    "port": 8181
+  },
+  {
+    "host": "cx2sa.dyndns.org",
+    "port": 9000
+  }
+]
