@@ -1,37 +1,91 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:layout_marginBottom="0dp"
     android:padding="8dp">
 
     <TextView
-        android:id="@+id/frequencyView"
-        android:layout_width="wrap_content"
+        android:id="@+id/frequencyItemView"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
+        android:padding="8dp"
         android:text="Frequency"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/callSignItemView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="Call Sign"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/locationItemView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="Location"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/timeItemView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="Time"
+        android:textSize="18sp" />
+
+    <!-- Receive S-value Dropdown -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:text="Receive S-Value"
         android:textSize="16sp" />
 
-    <TextView
-        android:id="@+id/callSignView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
-        android:text="Call Sign"
-        android:textSize="14sp" />
+    <Spinner
+        android:id="@+id/receiveSValueSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
+    <!-- Send S-value Dropdown -->
     <TextView
-        android:id="@+id/locationView"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Location"
-        android:textSize="14sp" />
+        android:paddingTop="8dp"
+        android:text="Send S-Value"
+        android:textSize="16sp" />
 
-    <TextView
-        android:id="@+id/time"
-        android:layout_width="wrap_content"
+    <Spinner
+        android:id="@+id/sendSValueSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!-- Editable Time and Date Field -->
+    <EditText
+        android:id="@+id/timeDateEditText"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Location"
-        android:textSize="14sp" />
+        android:hint="Enter Time and Date"
+        android:padding="8dp"
+        android:textSize="16sp" />
+
+    <!-- Set Frequency Button -->
+    <Button
+        android:id="@+id/setFrequencyButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Set Frequency" />
+
+    <!-- Save to Log Book Button -->
+    <Button
+        android:id="@+id/saveLogButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Save to Log Book" />
+
 </LinearLayout>

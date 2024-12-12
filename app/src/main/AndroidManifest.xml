@@ -12,11 +12,11 @@
         android:required="true" />
 
     <application
+
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.CatController"
@@ -27,21 +27,19 @@
             android:name="com.example.catcontroller.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.CatController.NoActionBar">
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+
             </intent-filter>
         </activity>
-
+        <activity android:name=".ComPortConfigActivity" />
         <!-- Popup Activity -->
-        <activity
-            android:name=".PopupActivity"
-            android:theme="@style/Theme.CatController.NoActionBar"
-            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity android:name=".FilterBandActivity" />
 
         <!-- Spot Detail Activity -->
-        <activity android:name=".SpotDetailActivity" />
-
+        <activity android:name=".spot.SpotDetailActivity" />
+        <activity android:name=".logbook.ViewLogsActivity" />
     </application>
 </manifest>

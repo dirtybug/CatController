@@ -1,14 +1,16 @@
-package com.example.catcontroller;
+package com.example.catcontroller.spot;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.catcontroller.FilterBandActivity;
+import com.example.catcontroller.MainActivity;
+import com.example.catcontroller.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,20 +18,26 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class SpotsAdapter extends RecyclerView.Adapter<SpotsAdapter.SpotViewHolder> {
+public class SpotsAdapter extends RecyclerView.Adapter<SpotViewHolder> {
+
 
     private static final long SPOT_EXPIRATION_THRESHOLD = 7 * 60 * 1000; // 7-minute expiration threshold
+    private static final String TAG = "HamRadioCluster";
     private final Map<String, Spot> spotMap = new HashMap<>();
     private final List<Spot> visibleSpots = new ArrayList<>(); // Spots to display in the RecyclerView
+    private final Context context; // Store the context from the constructor
     private Integer[] selectedBand = {1, 3, 7, 14, 21, 28}; // Current selected band in meters (0 = show all)
 
-    public SpotsAdapter() {
+    public SpotsAdapter(Context context) {
+
+        this.context = context;
+        selectedBand = FilterBandActivity.getBandFilterArray(context);
     }
 
     @NonNull
     @Override
     public SpotViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.spot_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_spot_detail, parent, false);
         return new SpotViewHolder(view);
     }
 
@@ -41,6 +49,7 @@ public class SpotsAdapter extends RecyclerView.Adapter<SpotsAdapter.SpotViewHold
         holder.callSignView.setText(spot.getCallSign());
         holder.locationView.setText(spot.getMessage());
         holder.time.setText(spot.getTime());
+        holder.bind(spot, context);
     }
 
     @Override
@@ -68,6 +77,7 @@ public class SpotsAdapter extends RecyclerView.Adapter<SpotsAdapter.SpotViewHold
             Spot existingSpot = spotMap.get(key);
             if (existingSpot != null) {
                 existingSpot.setTimestamp(currentTime); // Update the timestamp
+                existingSpot.setFrquecy(frequency);
             }
         } else {
             // Add a new spot
@@ -86,7 +96,7 @@ public class SpotsAdapter extends RecyclerView.Adapter<SpotsAdapter.SpotViewHold
 
     private void filterSpots() {
         visibleSpots.clear();
-
+        startSpotCleanupTask();
         for (Spot spot : spotMap.values()) {
             int frequency = (int) (Double.parseDouble(spot.getFrequency()) / 1000); // Convert frequency to band in meters
 
@@ -98,7 +108,7 @@ public class SpotsAdapter extends RecyclerView.Adapter<SpotsAdapter.SpotViewHold
             }
         }
 
-        startSpotCleanupTask();
+
         notifyDataSetChanged();
     }
 
@@ -115,6 +125,7 @@ public class SpotsAdapter extends RecyclerView.Adapter<SpotsAdapter.SpotViewHold
         return false;
     }
 
+
     /**
      * Removes spots older than the expiration threshold.
      */
@@ -126,41 +137,14 @@ public class SpotsAdapter extends RecyclerView.Adapter<SpotsAdapter.SpotViewHold
             Map.Entry<String, Spot> entry = iterator.next();
             Spot spot = entry.getValue();
 
+
             if (currentTime - spot.getTimestamp() > SPOT_EXPIRATION_THRESHOLD) {
                 iterator.remove(); // Remove expired spot
+                MainActivity.getHandlerObj().logMessage("REMOVED " + spot.getCallSign());
+
             }
         }
     }
 
-    public static class SpotViewHolder extends RecyclerView.ViewHolder {
-        TextView frequencyView, callSignView, locationView, time;
 
-        public SpotViewHolder(@NonNull View itemView) {
-            super(itemView);
-            frequencyView = itemView.findViewById(R.id.frequencyView);
-            callSignView = itemView.findViewById(R.id.callSignView);
-            locationView = itemView.findViewById(R.id.locationView);
-            time = itemView.findViewById(R.id.time);
-        }
-
-        public void bind(Spot spot, Context context) {
-            frequencyView.setText(spot.getFrequency());
-            callSignView.setText(spot.getCallSign());
-            locationView.setText(spot.getMessage());
-            time.setText(spot.getTime());
-
-            // Set click listener to open SpotDetailActivity
-            itemView.setOnClickListener(v -> {
-                Intent intent = new Intent(context, SpotDetailActivity.class);
-
-                // Pass data to the new activity
-                intent.putExtra("frequency", spot.getFrequency());
-                intent.putExtra("callSign", spot.getCallSign());
-                intent.putExtra("location", spot.getMessage());
-                intent.putExtra("time", spot.getTime());
-
-                context.startActivity(intent); // Start the new activity
-            });
-        }
-    }
 }

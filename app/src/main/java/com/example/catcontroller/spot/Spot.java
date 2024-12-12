@@ -1,4 +1,4 @@
-package com.example.catcontroller;
+package com.example.catcontroller.spot;
 
 
 import java.text.SimpleDateFormat;
@@ -6,7 +6,7 @@ import java.util.Date;
 
 public class Spot {
     private final String message;
-    private final String frequency;
+    private String frequency;
     private final String callSign;
     private long currentTime;
 
@@ -16,6 +16,11 @@ public class Spot {
         this.callSign = callSign;
         this.message = message;
         this.currentTime = currentTime;
+    }
+
+    public void setFrquecy(String frequency) {
+        this.frequency = frequency;
+
     }
 
     public String getFrequency() {

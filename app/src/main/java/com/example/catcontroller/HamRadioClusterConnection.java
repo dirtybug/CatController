@@ -1,27 +1,51 @@
 package com.example.catcontroller;
 
+import android.content.Context;
+import android.util.Log;
+
 import org.apache.commons.net.telnet.TelnetClient;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 
 public class HamRadioClusterConnection extends Thread {
-    private final JSONArray clusters;
-    private final String callsign;
+
+    private static final String TAG = "HamRadioCluster";
     private final FreqCallback freqCallback;
-    private final LogCallback logCallback;
     private final TelnetClient telnetClient;
+    private final String callsign;
+    private JSONArray clusters;
+    private DXCCLoader dxccload;
     private PrintWriter writer;
     private BufferedReader reader;
     private int currentIndex = 0;
 
-    public HamRadioClusterConnection(JSONArray clusters, String callsign, LogCallback logCallback, FreqCallback freqCallback) {
-        this.clusters = clusters;
+    public HamRadioClusterConnection(Context context, String callsign, FreqCallback freqCallback) {
+        try {
+            InputStream is = context.getAssets().open("ham_radio_clusters.json");
+            byte[] buffer = new byte[1024];
+            int size = is.available();
+            is.read(buffer);
+            is.close();
+            String jsonString = new String(buffer, StandardCharsets.UTF_8);
+            clusters = new JSONArray(jsonString);
+
+
+            this.dxccload = new DXCCLoader(context);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         this.callsign = callsign;
-        this.logCallback = logCallback;
         this.freqCallback = freqCallback;
         this.telnetClient = new TelnetClient();
     }
@@ -43,27 +67,27 @@ public class HamRadioClusterConnection extends Thread {
         try {
             JSONObject cluster = getNextCluster();
             if (cluster == null) {
-                logCallback.onLog("No more clusters to connect to.");
+                onLog("No more clusters to connect to.");
                 return false;
             }
 
             String host = cluster.getString("host");
             int port = cluster.getInt("port");
 
-            logCallback.onLog("Attempting to connect to cluster at " + host + ":" + port);
+            onLog("Attempting to connect to cluster at " + host + ":" + port);
             telnetClient.connect(host, port);
 
             writer = new PrintWriter(telnetClient.getOutputStream(), true);
             reader = new BufferedReader(new InputStreamReader(telnetClient.getInputStream()));
 
-            logCallback.onLog("Connected to cluster at " + host + ":" + port);
+            onLog("Connected to cluster at " + host + ":" + port);
             writer.println(callsign);
-            logCallback.onLog("Sent callsign: " + callsign);
+            onLog("Sent callsign: " + callsign);
 
 
             return true;
         } catch (Exception e) {
-            logCallback.onLog("Failed to connect to cluster: " + e.getMessage());
+            onLog("Failed to connect to cluster: " + e.getMessage());
             disconnect();
             return false;
         }
@@ -71,7 +95,7 @@ public class HamRadioClusterConnection extends Thread {
 
     private JSONObject getNextCluster() {
         if (clusters == null || clusters.length() == 0) {
-            logCallback.onLog("Cluster list is empty.");
+            onLog("Cluster list is empty.");
             return null;
         }
 
@@ -84,12 +108,16 @@ public class HamRadioClusterConnection extends Thread {
         try {
             String line;
             while ((line = reader.readLine()) != null) {
-                logCallback.onLog("Received line: " + line);
+                onLog("Received line: " + line);
                 extractSpotInfo(line);
             }
         } catch (Exception e) {
-            logCallback.onLog("Error while listening for spots: " + e.getMessage());
+            onLog("Error while listening for spots: " + e.getMessage());
         }
+    }
+
+    private void onLog(String message) {
+        Log.d(TAG, message);
     }
 
     private void extractSpotInfo(String line) {
@@ -103,11 +131,11 @@ public class HamRadioClusterConnection extends Thread {
                 if (parts.length > 6) {
                     location = parts[5];
                 }
-
-                freqCallback.onAdd(frequency, callSign, location);
+                String flag = this.dxccload.getFlagFromCallSign(callSign);
+                freqCallback.onAdd(frequency, flag + " " + callSign, location);
             }
         } catch (Exception e) {
-            logCallback.onLog("Failed to parse spot info: " + e.getMessage());
+            onLog("Failed to parse spot info: " + e.getMessage());
             disconnect();
         }
     }
@@ -119,12 +147,12 @@ public class HamRadioClusterConnection extends Thread {
                 if (writer != null) {
                     writer.println(commad);
                     writer.flush();
-                    logCallback.onLog("Command sent: " + commad);
+                    onLog("Command sent: " + commad);
                 } else {
-                    logCallback.onLog("Writer is not initialized. Command not sent.");
+                    onLog("Writer is not initialized. Command not sent.");
                 }
             } catch (Exception e) {
-                logCallback.onLog("Error while sending command: " + e.getMessage());
+                onLog("Error while sending command: " + e.getMessage());
             }
         }
 
@@ -134,18 +162,16 @@ public class HamRadioClusterConnection extends Thread {
         try {
             if (telnetClient != null && telnetClient.isConnected()) {
                 telnetClient.disconnect();
-                logCallback.onLog("Disconnected from cluster.");
+                onLog("Disconnected from cluster.");
             }
         } catch (Exception e) {
-            logCallback.onLog("Error during disconnect: " + e.getMessage());
+            onLog("Error during disconnect: " + e.getMessage());
         }
     }
 
-    public interface LogCallback {
-        void onLog(String message);
-    }
 
     public interface FreqCallback {
+
         void onAdd(String frequency, String callSign, String location);
     }
 }

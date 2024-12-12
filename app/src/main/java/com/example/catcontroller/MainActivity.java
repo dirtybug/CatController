@@ -4,34 +4,38 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
 import android.widget.Button;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
+import com.example.catcontroller.logbook.ViewLogsActivity;
+import com.example.catcontroller.spot.SpotsAdapter;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
 
-
+    private static final String TAG = "HamRadioCluster";
     private static final int MAX_LOG_LINES = 10; // Maximum number of lines to keep
+    private static MainActivity obj;
     private final List<String> logLines = new LinkedList<>();
     private final Handler cleanupHandler = new Handler(Looper.getMainLooper());
     private HamRadioClusterConnection clusterConnection;
     private TextView logsView;
     private SpotsAdapter spotsAdapter;
     private Handler uiHandler;
+
+    public static MainActivity getHandlerObj() {
+        return obj;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,41 +46,41 @@ public class MainActivity extends AppCompatActivity {
         RecyclerView spotsRecyclerView = findViewById(R.id.spotsRecyclerView);
         Button openPopupButton = findViewById(R.id.openPopupButton);
         Button openRadio = findViewById(R.id.openRadio);
-        spotsAdapter = new SpotsAdapter();
+        Button ViewLog = findViewById(R.id.ViewLog);
+
+        spotsAdapter = new SpotsAdapter(this);
+
         spotsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         spotsRecyclerView.setAdapter(spotsAdapter);
 
         uiHandler = new Handler(Looper.getMainLooper());
 
 
-        try {
-            InputStream is = getAssets().open("ham_radio_clusters.json");
-            byte[] buffer = new byte[1024];
-            int size = is.available();
-            is.read(buffer);
-            is.close();
-            String jsonString = new String(buffer, StandardCharsets.UTF_8);
-            JSONArray clusters = new JSONArray(jsonString);
-            clusterConnection = new HamRadioClusterConnection(
-                    clusters,
-                    "HB9IMH",
-                    this::logMessage,
-                    this::addSpot
-            );
+        clusterConnection = new HamRadioClusterConnection(
+                this,
+
+                "HB9IMH",
+
+                this::addSpot
+        );
 
 
-            clusterConnection.start();
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
-        }
+        clusterConnection.start();
+        MainActivity.obj = this;
+        ViewLog.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, ViewLogsActivity.class);
+            startActivity(intent);
+        });
+
         openPopupButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, PopupActivity.class);
-            PopupActivity.setBandFilterCallback(this::filterBand);
+            Intent intent = new Intent(MainActivity.this, FilterBandActivity.class);
+            FilterBandActivity.setBandFilterCallback(this::filterBand);
             startActivity(intent);
         });
         openRadio.setOnClickListener(v -> {
-                    FT891CommManager radio = new FT891CommManager(this);
-                    radio.getAvailableDevices();
+                    Intent intent = new Intent(MainActivity.this, ComPortConfigActivity.class);
+                    startActivity(intent);
+
 
                 }
         );
@@ -88,15 +92,17 @@ public class MainActivity extends AppCompatActivity {
         spotsAdapter.selectBand(bandMeters);
     }
 
+    private void onLog(String message) {
+        Log.d(TAG, message);
+    }
 
-    private void logMessage(String message) {
-        if (logLines.size() >= MAX_LOG_LINES) {
-            logLines.remove(0); // Remove the oldest log
-        }
-        logLines.add(message);
+    public void logMessage(String message) {
+        logsView.append(message + "\n");
 
-        // Update the TextView
-        runOnUiThread(() -> logsView.setText(TextUtils.join("\n", logLines)));
+        // Scroll to the bottom of the ScrollView
+        ScrollView logScrollView = findViewById(R.id.logScrollView);
+        logScrollView.post(() -> logScrollView.fullScroll(View.FOCUS_DOWN));
+
     }
 
     private void addSpot(String frequency, String callSign, String location) {
@@ -105,9 +111,9 @@ public class MainActivity extends AppCompatActivity {
         uiHandler.post(() -> {
 
             if (spotsAdapter.setSpot(frequency, callSign, location)) {
-                logMessage("ADDED " + callSign);
+                logMessage("ADDED " + callSign + "@" + frequency);
             } else {
-                logMessage("REFRESH " + callSign);
+                logMessage("REFRESH " + callSign + "@" + frequency);
             }
         });
     }

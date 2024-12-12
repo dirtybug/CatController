@@ -9,10 +9,8 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
-import android.util.Log;
 
 import com.felhr.usbserial.UsbSerialDevice;
-import com.felhr.usbserial.UsbSerialInterface;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,11 +18,11 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class FT891CommManager extends Thread {
-
-    private static final String TAG = "HamRadioCluster";
-    private static final String ACTION_USB_PERMISSION = "com.example.catcontroller.USB_PERMISSION";
-
+public class ComPortManager extends Thread {
+    private static ComPortManager instance;
+    private final String TAG = "HamRadioCluster";
+    private final String ACTION_USB_PERMISSION = "com.example.catcontroller.USB_PERMISSION";
+    private List<String> deviceList;
     private final UsbManager usbManager;
     private final BlockingQueue<String> commandQueue;
     private final Context context;
@@ -47,10 +45,11 @@ public class FT891CommManager extends Thread {
             }
         }
     };
-    private List<String> deviceList;
 
-    public FT891CommManager(Context context) {
+
+    public ComPortManager(Context context) {
         this.context = context;
+        instance = this;
 
         this.usbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
         this.commandQueue = new LinkedBlockingQueue<>();
@@ -58,6 +57,10 @@ public class FT891CommManager extends Thread {
         // Register receiver for USB permission
         IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
         context.registerReceiver(usbReceiver, filter);
+    }
+
+    public static ComPortManager getInstance() {
+        return instance;
     }
 
     public void getAvailableDevices() {
@@ -118,11 +121,12 @@ public class FT891CommManager extends Thread {
             UsbSerialDevice serialDevice = UsbSerialDevice.createUsbSerialDevice(usbDevice, connection);
             if (serialDevice != null) {
                 if (serialDevice.open()) {
-                    serialDevice.setBaudRate(38400);
-                    serialDevice.setDataBits(UsbSerialInterface.DATA_BITS_8);
-                    serialDevice.setStopBits(UsbSerialInterface.STOP_BITS_1);
-                    serialDevice.setParity(UsbSerialInterface.PARITY_NONE);
-                    serialDevice.setFlowControl(UsbSerialInterface.FLOW_CONTROL_OFF);
+                    serialDevice.setBaudRate(ComPortConfigActivity.getInstance().getBaudRate());
+
+                    serialDevice.setDataBits(ComPortConfigActivity.getInstance().getDataBits());
+                    serialDevice.setStopBits(ComPortConfigActivity.getInstance().getStopBits());
+                    serialDevice.setParity(ComPortConfigActivity.getInstance().getParity());
+                    serialDevice.setFlowControl(ComPortConfigActivity.getInstance().getFlowControl());
 
                     this.serialDevice = serialDevice;
                     serialDevice.read(this::onReceivedData);
@@ -130,7 +134,7 @@ public class FT891CommManager extends Thread {
 
                     // Send initial commands
                     sendAndReceiveCommand("ID;");
-                    sendAndReceiveCommand("FA;");
+
 
                     // Start the thread
                     this.start();
@@ -148,12 +152,12 @@ public class FT891CommManager extends Thread {
     }
 
     private void onLog(String message) {
-        Log.d(TAG, message);
+        MainActivity.getHandlerObj().logMessage(message);
     }
 
     private void onReceivedData(byte[] data) {
         String response = new String(data);
-        onLog("Response: " + response);
+        MainActivity.getHandlerObj().logMessage("Response: " + response);
     }
 
     @Override
@@ -208,4 +212,6 @@ public class FT891CommManager extends Thread {
     private void sendAndReceiveCommand(String command) {
         queueCommand(command);
     }
+
+
 }
