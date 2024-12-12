@@ -185,9 +185,7 @@ public class ComPortManager extends Thread {
     }
 
     public void queueCommand(String command) {
-        if (!command.endsWith(";")) {
-            command += ";";
-        }
+
         try {
             commandQueue.put(command);
         } catch (InterruptedException e) {

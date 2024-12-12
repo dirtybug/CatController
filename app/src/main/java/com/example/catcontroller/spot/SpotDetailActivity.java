@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.catcontroller.FT891;
 import com.example.catcontroller.R;
 import com.example.catcontroller.logbook.LogDatabaseHelper;
 
@@ -64,6 +65,9 @@ public class SpotDetailActivity extends AppCompatActivity {
         Button setFrequencyButton = findViewById(R.id.setFrequencyButton);
         setFrequencyButton.setOnClickListener(v -> {
             Toast.makeText(this, "Frequency set: " + frequency, Toast.LENGTH_SHORT).show();
+            FT891 ft891Obj = new FT891();
+            ft891Obj.setFrequency(frequency);
+
         });
 
         // Save to log book button action
