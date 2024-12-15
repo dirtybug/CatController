@@ -37,7 +37,7 @@ public class SpotsAdapter extends RecyclerView.Adapter<SpotViewHolder> {
     @NonNull
     @Override
     public SpotViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_spot_detail, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_spot, parent, false);
         return new SpotViewHolder(view);
     }
 
@@ -46,8 +46,8 @@ public class SpotsAdapter extends RecyclerView.Adapter<SpotViewHolder> {
         Spot spot = visibleSpots.get(position);
         if (spot == null) return;
         holder.frequencyView.setText(spot.getFrequency());
-        holder.callSignView.setText(spot.getCallSign());
-        holder.locationView.setText(spot.getMessage());
+        holder.callSignView.setText(spot.getFlag() + spot.getCallSign());
+        holder.locationView.setText(spot.getComment());
         holder.time.setText(spot.getTime());
         holder.bind(spot, context);
     }
@@ -69,7 +69,7 @@ public class SpotsAdapter extends RecyclerView.Adapter<SpotViewHolder> {
     /**
      * Adds or updates a spot in the map and refreshes the visible list.
      */
-    public boolean setSpot(String frequency, String callSign, String location) {
+    public boolean setSpot(String frequency, String Flag, String callSign, String location, String comment) {
 
         long currentTime = System.currentTimeMillis(); // Current timestamp
         boolean hasAdded = false;
@@ -81,8 +81,8 @@ public class SpotsAdapter extends RecyclerView.Adapter<SpotViewHolder> {
             }
         } else {
             // Add a new spot
-            Spot newSpot = new Spot(frequency, callSign, location, currentTime);
-            spotMap.put(callSign, newSpot);
+            Spot newSpot = new Spot(frequency, Flag, callSign, location, currentTime, comment);
+            spotMap.put(Flag + callSign, newSpot);
 
             hasAdded = true;
 
@@ -140,7 +140,7 @@ public class SpotsAdapter extends RecyclerView.Adapter<SpotViewHolder> {
 
             if (currentTime - spot.getTimestamp() > SPOT_EXPIRATION_THRESHOLD) {
                 iterator.remove(); // Remove expired spot
-                MainActivity.getHandlerObj().logMessage("REMOVED " + spot.getCallSign());
+                MainActivity.getHandlerObj().logMessage("REMOVED " + spot.getFlag() + spot.getCallSign());
 
             }
         }

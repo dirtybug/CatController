@@ -85,11 +85,11 @@ public class ComPortManager extends Thread {
     /**
      * Request permission for a specific device by its ID (device name).
      */
-    public void requestPermission(String deviceName) {
+    public boolean requestPermission(String deviceName) {
         UsbDevice device = findDeviceByName(deviceName);
         if (device == null) {
             onLog("Device not found: " + deviceName);
-            return;
+            return false;
         }
 
         if (!usbManager.hasPermission(device)) {
@@ -100,8 +100,9 @@ public class ComPortManager extends Thread {
                     PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
             );
             usbManager.requestPermission(device, permissionIntent);
+            return false;
         } else {
-            connect(device);
+            return connect(device);
         }
     }
 
@@ -124,10 +125,6 @@ public class ComPortManager extends Thread {
             onLog("Vendor ID: " + device.getVendorId());
             onLog("Product ID: " + device.getProductId());
 
-            if (device == null) {
-                onLog("Error: Device not found.");
-                return false;
-            }
 
             UsbDeviceConnection connection = usbManager.openDevice(device);
             if (connection == null) {

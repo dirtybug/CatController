@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.Runner.MiauDx.HamRadioClusterConnection;
 import com.Runner.MiauDx.R;
 import com.Runner.MiauDx.logbook.LogDatabaseHelper;
 import com.Runner.MiauDx.radios.RadioBase;
@@ -28,7 +29,7 @@ public class SpotDetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.spot_item);
+        setContentView(R.layout.activity_spot);
 
         // Initialize database helper
         dbHelper = new LogDatabaseHelper(this);
@@ -37,6 +38,10 @@ public class SpotDetailActivity extends AppCompatActivity {
         String frequency = getIntent().getStringExtra("frequency");
         String callSign = getIntent().getStringExtra("callSign");
         String location = getIntent().getStringExtra("location");
+        String flag = getIntent().getStringExtra("flag");
+        String comment = getIntent().getStringExtra("comment");
+
+
         String time = getIntent().getStringExtra("time");
 
         // Bind the data to views
@@ -46,7 +51,7 @@ public class SpotDetailActivity extends AppCompatActivity {
         TextView timeView = findViewById(R.id.timeItemView);
 
         frequencyView.setText(frequency);
-        callSignView.setText(callSign);
+        callSignView.setText(flag + callSign);
         locationView.setText(location);
         timeView.setText(time);
 
@@ -64,7 +69,13 @@ public class SpotDetailActivity extends AppCompatActivity {
         String currentDateAndTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
         timeDateEditText.setText(currentDateAndTime);
         Button openLinkButton = findViewById(R.id.openLinkButton);
+        Button sendSpot = findViewById(R.id.SendSpot);
+        sendSpot.setOnClickListener(v -> {
+                    String sentSpot = "DX " + callSign + " " + frequency;
+                    HamRadioClusterConnection.getHandlerObj().sendCommand(sentSpot);
 
+                }
+        );
         // Set up the button click listener
         openLinkButton.setOnClickListener(v -> {
             // The URL to be opened

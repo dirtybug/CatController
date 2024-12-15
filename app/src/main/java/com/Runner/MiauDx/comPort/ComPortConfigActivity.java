@@ -190,9 +190,14 @@ public class ComPortConfigActivity extends AppCompatActivity {
             editor.putInt(KEY_RADIO_TYPE, this.selectedRadioType.ordinal());
             editor.putString(KEY_DEVICE_ID, this.selectedDeviceId);
             editor.apply();
-
+            if (this.selectedRadioType == RadioType.NORADIO) {
+                Toast.makeText(this, "No Radio Selected.", Toast.LENGTH_LONG).show();
+            }
             // Request permission for the selected device
-            ComPortManager.getInstance().requestPermission(selectedDeviceId);
+            if (!ComPortManager.getInstance().requestPermission(selectedDeviceId)) {
+                Toast.makeText(this, "No devices Selected.", Toast.LENGTH_LONG).show();
+            }
+
 
             // Close the configuration window
             finish();

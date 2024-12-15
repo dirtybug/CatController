@@ -8,12 +8,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.Runner.MiauDx.R;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 
 public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
@@ -21,6 +25,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
 
     private final List<Log> logs;
     private final Context context;
+    private Log log;
 
     // Constructor with context and logs
     public LogAdapter(Context context, List<Log> logs) {
@@ -37,7 +42,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull LogViewHolder holder, int position) {
-        Log log = logs.get(position);
+        this.log = logs.get(position);
 
         holder.frequencyView.setText("Frequency: " + log.getFrequency());
         holder.callSignView.setText("Call Sign: " + log.getCallSign());
@@ -46,6 +51,8 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
         holder.receiveSValueView.setText("Receive S: " + log.getReceiveSValue());
         holder.sendSValueView.setText("Send S: " + log.getSendSValue());
 
+
+        holder.generateAdifButton.setOnClickListener(v -> generateAdifFile());
         // Handle Edit Button
         holder.editButton.setOnClickListener(v -> {
             Intent intent = new Intent(context, EditLogActivity.class);
@@ -66,6 +73,47 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
                 .setNegativeButton("No", null)
                 .show());
     }
+
+    private void generateAdifFile() {
+        // Fetch all logs from the database
+
+
+        // Define the ADIF file header and footer
+        StringBuilder adifContent = new StringBuilder();
+        adifContent.append("ADIF Export\n");
+        adifContent.append("<EOH>\n"); // End of header
+
+        // Loop through logs and add ADIF entries
+
+        adifContent.append("<CALL:").append(log.getCallSign().length()).append(">")
+                .append(log.getCallSign()).append(" ");
+        adifContent.append("<FREQ:").append(log.getFrequency().length()).append(">")
+                .append(log.getFrequency()).append(" ");
+        adifContent.append("<TIME_ON:").append(log.getTime().length()).append(">")
+                .append(log.getTime()).append(" ");
+        adifContent.append("<RST_SENT:").append(String.valueOf(log.getSendSValue()).length()).append(">")
+                .append(log.getSendSValue()).append(" ");
+        adifContent.append("<RST_RCVD:").append(String.valueOf(log.getReceiveSValue()).length()).append(">")
+                .append(log.getReceiveSValue()).append(" ");
+        adifContent.append("<QTH:").append(log.getLocation().length()).append(">")
+                .append(log.getLocation()).append("\n");
+
+
+        adifContent.append("<EOF>\n"); // End of file
+
+        // Save ADIF file to external storage
+        try {
+            File adifFile = new File(context.getExternalFilesDir(null), log.getCallSign() + ".adi");
+            FileWriter writer = new FileWriter(adifFile);
+            writer.write(adifContent.toString());
+            writer.close();
+
+            Toast.makeText(context, "ADIF file generated: " + adifFile.getAbsolutePath(), Toast.LENGTH_LONG).show();
+        } catch (IOException e) {
+            Toast.makeText(context, "Error generating ADIF file: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
 
     @Override
     public int getItemCount() {
@@ -88,7 +136,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
     }
 
     static class LogViewHolder extends RecyclerView.ViewHolder {
-        TextView frequencyView, callSignView, locationView, timeView, receiveSValueView, sendSValueView;
+        TextView frequencyView, generateAdifButton, callSignView, locationView, timeView, receiveSValueView, sendSValueView;
         Button editButton, deleteButton;
 
         public LogViewHolder(@NonNull View itemView) {
@@ -101,6 +149,8 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
             sendSValueView = itemView.findViewById(R.id.sendLogSValueView);
             editButton = itemView.findViewById(R.id.editButton);
             deleteButton = itemView.findViewById(R.id.deleteButton);
+            generateAdifButton = itemView.findViewById(R.id.generateAdifButton);
+
         }
     }
 }

@@ -12,27 +12,40 @@
         <item name="spinnerStyle">@style/DefaultSpinnerStyle</item>
         <item name="checkboxStyle">@style/DefaultCheckBoxStyle</item>
         <item name="editTextStyle">@style/DefaultEditTextStyle</item>
+        <item name="android:itemBackground">@color/black</item>
+        <!-- Ensure popupMenuStyle points to DefaultPopupMenuStyle -->
+        <item name="popupMenuStyle">@style/DefaultPopupMenuStyle</item>
+
     </style>
 
+    <!-- Custom popup menu style -->
+    <style name="DefaultPopupMenuStyle" parent="Widget.MaterialComponents.MaterialCalendar.Item">
+        <item name="android:popupBackground">@color/black</item> <!-- Black background -->
+        <item name="android:textColor">@color/white</item> <!-- White text -->
+    </style>
+
+    <!-- Button style -->
     <style name="DefaultButtonStyle" parent="Widget.MaterialComponents.Button">
         <item name="android:background">@color/grey</item> <!-- Grey background -->
         <item name="android:textColor">@color/white</item> <!-- White text -->
     </style>
 
+    <!-- Spinner style -->
     <style name="DefaultSpinnerStyle" parent="Widget.AppCompat.Spinner">
         <item name="android:popupBackground">@color/black</item> <!-- Dropdown background -->
         <item name="android:textColor">@color/white</item> <!-- Dropdown text color -->
     </style>
 
+    <!-- CheckBox style -->
     <style name="DefaultCheckBoxStyle" parent="Widget.MaterialComponents.CompoundButton.CheckBox">
         <item name="android:buttonTint">@color/white</item> <!-- White CheckBox button -->
         <item name="android:textColor">@color/white</item> <!-- White text -->
     </style>
 
+    <!-- EditText style -->
     <style name="DefaultEditTextStyle" parent="Widget.AppCompat.EditText">
         <item name="android:popupBackground">@color/black</item> <!-- Dropdown background -->
         <item name="android:textColor">@color/white</item> <!-- Dropdown text color -->
     </style>
-
 
 </resources>

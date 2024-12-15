@@ -14,20 +14,25 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class HamRadioClusterConnection extends Thread {
 
     private static final String TAG = "HamRadioCluster";
-    private final FreqCallback freqCallback;
+
     private final TelnetClient telnetClient;
     private final String callsign;
+    private static HamRadioClusterConnection obj = null;
     private JSONArray clusters;
     private DXCCLoader dxccload;
     private PrintWriter writer;
     private BufferedReader reader;
     private int currentIndex = 0;
+    private BlockingQueue<String> commandQueue;
+    private volatile boolean isConnected = false;
 
-    public HamRadioClusterConnection(Context context, String callsign, FreqCallback freqCallback) {
+    public HamRadioClusterConnection(Context context) {
         try {
             InputStream is = context.getAssets().open("ham_radio_clusters.json");
             byte[] buffer = new byte[1024];
@@ -36,29 +41,45 @@ public class HamRadioClusterConnection extends Thread {
             is.close();
             String jsonString = new String(buffer, StandardCharsets.UTF_8);
             clusters = new JSONArray(jsonString);
+            obj = this;
 
-
+            this.commandQueue = new LinkedBlockingQueue<>();
             this.dxccload = new DXCCLoader(context);
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
+        callsign = UserSettingsActivity.getCallsign(context);
 
-        this.callsign = callsign;
-        this.freqCallback = freqCallback;
+
         this.telnetClient = new TelnetClient();
+    }
+
+    public static HamRadioClusterConnection getHandlerObj() {
+        return obj;
     }
 
     @Override
     public void run() {
         while (true) {
-
-            while (attemptConnection() == false) {
-
+            if (!isConnected) {
+                if (!attemptConnection()) {
+                    onLog("Retrying connection...");
+                    continue;
+                }
             }
-            listenForSpots();
+
+            try {
+                String line;
+                while (isConnected && (line = reader.readLine()) != null) {
+                    processCommandQueue();
+                    onLog("Received line: " + line);
+                    extractSpotInfo(line); // Keeping your original method untouched
+                }
+            } catch (IOException e) {
+                onLog("Connection lost: " + e.getMessage());
+                disconnect();
+            }
         }
-
-
     }
 
     private boolean attemptConnection() {
@@ -84,6 +105,7 @@ public class HamRadioClusterConnection extends Thread {
 
             writer.println("SET/DXITU");
 
+            isConnected = true;
             return true;
         } catch (Exception e) {
             onLog("Failed to connect to cluster: " + e.getMessage());
@@ -103,15 +125,28 @@ public class HamRadioClusterConnection extends Thread {
         return cluster;
     }
 
-    private void listenForSpots() {
+    private void processCommandQueue() {
         try {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                onLog("Received line: " + line);
-                extractSpotInfo(line);
+            while (!commandQueue.isEmpty()) {
+                String command = commandQueue.take();
+                sendCommandDirect(command);
+            }
+        } catch (InterruptedException e) {
+            onLog("Command processing interrupted.");
+        }
+    }
+
+    private void sendCommandDirect(String command) {
+        try {
+            if (writer != null) {
+                writer.println(command);
+                writer.flush();
+                onLog("Command sent: " + command);
+            } else {
+                onLog("Writer is not initialized. Command not sent.");
             }
         } catch (Exception e) {
-            onLog("Error while listening for spots: " + e.getMessage());
+            onLog("Error while sending command: " + e.getMessage());
         }
     }
 
@@ -119,42 +154,12 @@ public class HamRadioClusterConnection extends Thread {
         Log.d(TAG, message);
     }
 
-    private void extractSpotInfo(String line) {
+    public void sendCommand(String command) {
         try {
-            // Example line: "DX de SV8SYK:    18100.0  N4ZR                                        2014Z"
-            String[] parts = line.split("\\s+");
-            if (parts.length >= 5 && parts[0].equals("DX") && parts[1].equals("de")) {
-                String frequency = parts[3];
-                String callSign = parts[4];
-                String location = "";
-                if (parts.length > 6) {
-                    location = parts[5];
-                }
-                String flag = this.dxccload.getFlagFromCallSign(callSign);
-                freqCallback.onAdd(frequency, flag + " " + callSign, location);
-            }
-        } catch (Exception e) {
-            onLog("Failed to parse spot info: " + e.getMessage());
-            disconnect();
+            commandQueue.put(command); // Queue the command
+        } catch (InterruptedException e) {
+            onLog("Failed to queue command: " + e.getMessage());
         }
-    }
-
-    public void sendCommad(String commad) {
-
-        synchronized (this) {
-            try {
-                if (writer != null) {
-                    writer.println(commad);
-                    writer.flush();
-                    onLog("Command sent: " + commad);
-                } else {
-                    onLog("Writer is not initialized. Command not sent.");
-                }
-            } catch (Exception e) {
-                onLog("Error while sending command: " + e.getMessage());
-            }
-        }
-
     }
 
     public void disconnect() {
@@ -165,12 +170,39 @@ public class HamRadioClusterConnection extends Thread {
             }
         } catch (Exception e) {
             onLog("Error during disconnect: " + e.getMessage());
+        } finally {
+            isConnected = false;
+        }
+    }
+
+    private void extractSpotInfo(String line) {
+        try {
+            // Example line: "DX de SV8SYK:    18100.0  N4ZR                                        2014Z"
+            String[] parts = line.split("\\s+");
+            if (parts.length >= 5 && parts[0].equals("DX") && parts[1].equals("de")) {
+                String spotter = line.substring(6, 16).trim();        // Characters 7-16 (spotter callsign)
+                String frequency = line.substring(17, 26).trim();    // Characters 19-27 (frequency)
+                String dxCallSign = line.substring(26, 39).trim();      // Characters 29-40 (spotted callsign)
+                String time = line.substring(70, 75).trim();         // Characters 42-46 (time)
+                String coment = line.substring(39, 67);
+                String location = parts[parts.length - 3];
+                location += ", " + parts[parts.length - 1];
+
+                if (dxCallSign.equals(this.callsign)) {
+                    String spoter = spotter.replace(":", "");
+                    onLog("You were spoted By:" + spoter);
+                } else {
+                    String flag = this.dxccload.getFlagFromCallSign(dxCallSign);
+                    MainActivity.getHandlerObj().addSpot(frequency, flag, dxCallSign, location, coment);
+                }
+            }
+
+            Log.v(TAG, line);
+        } catch (Exception e) {
+            onLog("Failed to parse spot info: " + e.getMessage());
+            disconnect();
         }
     }
 
 
-    public interface FreqCallback {
-
-        void onAdd(String frequency, String callSign, String location);
-    }
 }

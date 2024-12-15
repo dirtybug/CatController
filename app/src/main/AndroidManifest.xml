@@ -4,7 +4,8 @@
 
     <!-- Internet permission (already present) -->
     <uses-permission android:name="android.permission.INTERNET" />
-
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <!-- Add USB-related permissions -->
     <uses-permission android:name="android.permission.USB_PERMISSION" />
     <uses-feature
@@ -52,5 +53,10 @@
         <activity
             android:name=".logbook.EditLogActivity"
             android:label="Edit log" />
+        <activity
+            android:name=".UserSettingsActivity"
+            android:label="Edit User" />
+
+
     </application>
 </manifest>

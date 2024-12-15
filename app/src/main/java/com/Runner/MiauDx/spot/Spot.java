@@ -5,17 +5,21 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Spot {
-    private final String message;
+    private final String location;
+    private final String flag;
+    private final String comment;
     private String frequency;
     private final String callSign;
     private long currentTime;
 
 
-    public Spot(String frequency, String callSign, String message, long currentTime) {
+    public Spot(String frequency, String flag, String callSign, String location, long currentTime, String comment) {
         this.frequency = frequency;
         this.callSign = callSign;
-        this.message = message;
+        this.location = location;
         this.currentTime = currentTime;
+        this.flag = flag;
+        this.comment = comment;
     }
 
     public void setFrquecy(String frequency) {
@@ -31,12 +35,21 @@ public class Spot {
         return callSign;
     }
 
-    public String getMessage() {
-        return message;
+    public String getFlag() {
+        return flag;
+    }
+
+    public String getLocation() {
+        return location;
     }
 
     public long getTimestamp() {
         return currentTime;
+
+    }
+
+    public String getComment() {
+        return comment;
 
     }
 
