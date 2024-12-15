@@ -13,6 +13,7 @@
         <item name="checkboxStyle">@style/DefaultCheckBoxStyle</item>
         <item name="editTextStyle">@style/DefaultEditTextStyle</item>
         <item name="android:itemBackground">@color/black</item>
+
         <!-- Ensure popupMenuStyle points to DefaultPopupMenuStyle -->
         <item name="popupMenuStyle">@style/DefaultPopupMenuStyle</item>
 
