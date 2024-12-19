@@ -37,8 +37,11 @@ public class FilterBandActivity extends AppCompatActivity {
         if (preferences.getBoolean(KEY_160M, true)) selectedBands.add(1);  // 160m
         if (preferences.getBoolean(KEY_80M, true)) selectedBands.add(3);  // 80m
         if (preferences.getBoolean(KEY_40M, true)) selectedBands.add(7);  // 40m
+        if (preferences.getBoolean(KEY_12M, true)) selectedBands.add(12); // 12m
         if (preferences.getBoolean(KEY_20M, true)) selectedBands.add(14); // 20m
+
         if (preferences.getBoolean(KEY_15M, true)) selectedBands.add(21); // 15m
+
         if (preferences.getBoolean(KEY_10M, true)) selectedBands.add(28); // 10m
 
         return selectedBands.toArray(new Integer[0]);
@@ -55,6 +58,7 @@ public class FilterBandActivity extends AppCompatActivity {
         CheckBox checkbox160m = findViewById(R.id.checkbox_160m);
         CheckBox checkbox80m = findViewById(R.id.checkbox_80m);
         CheckBox checkbox40m = findViewById(R.id.checkbox_40m);
+
         CheckBox checkbox20m = findViewById(R.id.checkbox_20m);
         CheckBox checkbox15m = findViewById(R.id.checkbox_15m);
         CheckBox checkbox12m = findViewById(R.id.checkbox_12m);

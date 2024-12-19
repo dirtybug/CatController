@@ -8,7 +8,6 @@ import android.os.Looper;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -19,14 +18,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.Runner.MiauDx.comPort.ComPortConfigActivity;
 import com.Runner.MiauDx.comPort.ComPortManager;
+import com.Runner.MiauDx.cqMode.CQModeActivity;
 import com.Runner.MiauDx.logbook.ViewLogsActivity;
+import com.Runner.MiauDx.spot.Spot;
 import com.Runner.MiauDx.spot.SpotsAdapter;
 
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String DONATE = "https://www.paypal.com/donate/?hosted_button_id=BJ44UH97D4MMS";
-
 
     static MainActivity obj;
 
@@ -34,7 +35,10 @@ public class MainActivity extends AppCompatActivity {
     private HamRadioClusterConnection clusterConnection;
     private TextView logsView;
     private SpotsAdapter spotsAdapter;
+    private static final String KEY_LOGS = "logs"; // Key to save logs
     private Handler uiHandler;
+    private static final String KEY_SPOTS_LIST = "spots_list"; // Key to save RecyclerView data
+    private RecyclerView spotsRecyclerView;
 
     public static MainActivity getHandlerObj() {
         return obj;
@@ -54,10 +58,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         logsView = findViewById(R.id.logsView);
-        RecyclerView spotsRecyclerView = findViewById(R.id.spotsRecyclerView);
+        spotsRecyclerView = findViewById(R.id.spotsRecyclerView);
         Button openPopupButton = findViewById(R.id.openFilterButton);
-
-        Button ViewLog = findViewById(R.id.ViewLog);
+        Button viewLogButton = findViewById(R.id.ViewLog);
 
         spotsAdapter = new SpotsAdapter(this);
 
@@ -70,14 +73,16 @@ public class MainActivity extends AppCompatActivity {
         if (callsign == null || callsign.isEmpty()) {
             startActivity(new Intent(this, UserSettingsActivity.class));
         } else {
-
-            clusterConnection = new HamRadioClusterConnection(this);
-
-            clusterConnection.start();
+            clusterConnection = HamRadioClusterConnection.getInstance(this);
+            if (!clusterConnection.isRunning()) {
+                clusterConnection.start();
+            }
         }
-        MainActivity.obj = this;
 
-        ViewLog.setOnClickListener(v -> {
+        MainActivity.obj = this;
+        ComPortManager.getInstance(this);
+
+        viewLogButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, ViewLogsActivity.class);
             startActivity(intent);
         });
@@ -88,57 +93,72 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        // Restore saved logs and RecyclerView data after rotation
+        if (savedInstanceState != null) {
+            String savedLogs = savedInstanceState.getString(KEY_LOGS, "");
+            logsView.setText(savedLogs);
 
+            ArrayList<Spot> savedSpots = savedInstanceState.getParcelableArrayList(KEY_SPOTS_LIST);
+            if (savedSpots != null) {
+                spotsAdapter.setSpots(savedSpots);
+            }
+        }
+    }
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        // Save the logs for restoration
+        outState.putString(KEY_LOGS, logsView.getText().toString());
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-
             case R.id.open_radio: {
-                new ComPortManager(this);
-
                 Intent intent = new Intent(MainActivity.this, ComPortConfigActivity.class);
                 startActivity(intent);
-
+                return true;
             }
-            return true;
             case R.id.donate: {
-                // Create an intent to open the URL
+                // Open the donation URL
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(DONATE));
-
-                // Start the activity
                 startActivity(intent);
+                return true;
             }
-            return true;
             case R.id.UserSettings: {
                 startActivity(new Intent(this, UserSettingsActivity.class));
 
+                return true;
             }
-            return true;
+            case R.id.DxMode: {
+                startActivity(new Intent(this, CQModeActivity.class));
+
+                return true;
+            }
+
+
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+
     public void filterBand(Integer[] bandMeters) {
         spotsAdapter.selectBand(bandMeters);
     }
-
 
     public void logMessage(String message) {
         logsView.append(message + "\n");
 
         // Scroll to the bottom of the ScrollView
         ScrollView logScrollView = findViewById(R.id.logScrollView);
-        logScrollView.post(() -> logScrollView.fullScroll(View.FOCUS_DOWN));
-
+        logScrollView.post(() -> logScrollView.fullScroll(ScrollView.FOCUS_DOWN));
     }
 
     public void addSpot(String frequency, String flag, String callSign, String location, String comment) {
-
-
         uiHandler.post(() -> {
-
             if (spotsAdapter.setSpot(frequency, flag, callSign, location, comment)) {
                 logMessage("ADDED " + flag + callSign + "@" + frequency);
             } else {

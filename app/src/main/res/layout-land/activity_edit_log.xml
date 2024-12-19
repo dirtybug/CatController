@@ -1,0 +1,52 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/editFrequency"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Frequency" />
+
+    <EditText
+        android:id="@+id/editCallSign"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Call Sign" />
+
+    <EditText
+        android:id="@+id/editLocation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Location" />
+
+    <EditText
+        android:id="@+id/editTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Time" />
+
+    <EditText
+        android:id="@+id/editReceiveSValue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Receive S-Value"
+        android:inputType="number" />
+
+    <EditText
+        android:id="@+id/editSendSValue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Send S-Value"
+        android:inputType="number" />
+
+    <Button
+        android:id="@+id/saveButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/teal_200"
+        android:text="Save Changes"
+        android:textColor="@color/white" />
+</LinearLayout>

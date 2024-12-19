@@ -23,7 +23,7 @@ public class SpotsAdapter extends RecyclerView.Adapter<SpotViewHolder> {
 
     private static final long SPOT_EXPIRATION_THRESHOLD = 7 * 60 * 1000; // 7-minute expiration threshold
 
-    private final Map<String, Spot> spotMap = new HashMap<>();
+    private final static Map<String, Spot> spotMap = new HashMap<>();
     private final List<Spot> visibleSpots = new ArrayList<>(); // Spots to display in the RecyclerView
     private final Context context; // Store the context from the constructor
     private Integer[] selectedBand; // Current selected band in meters (0 = show all)
@@ -129,7 +129,7 @@ public class SpotsAdapter extends RecyclerView.Adapter<SpotViewHolder> {
     /**
      * Removes spots older than the expiration threshold.
      */
-    private void startSpotCleanupTask() {
+    public void startSpotCleanupTask() {
         long currentTime = System.currentTimeMillis();
         Iterator<Map.Entry<String, Spot>> iterator = spotMap.entrySet().iterator();
 
@@ -146,5 +146,22 @@ public class SpotsAdapter extends RecyclerView.Adapter<SpotViewHolder> {
         }
     }
 
+    public ArrayList<Spot> getSpotsList() {
+        return new ArrayList<>(spotMap.values());
+    }
+
+    public void setSpots(ArrayList<Spot> savedSpots) {
+
+        if (savedSpots == null || savedSpots.isEmpty()) return;
+        selectedBand = FilterBandActivity.getBandFilterArray(context);
+        spotMap.clear();
+        visibleSpots.clear();
+
+        for (Spot spot : savedSpots) {
+            spotMap.put(spot.getFlag() + spot.getCallSign(), spot);
+        }
+
+        filterSpots();
+    }
 
 }

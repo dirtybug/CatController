@@ -1,0 +1,94 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/darker_gray"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <!-- Buttons stacked vertically on the left -->
+
+
+    <!-- Text aligned to the right -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/frequencyLogView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:gravity="start"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/callSignLogView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/locationLogView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/timeLogView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/receiveLogSValueView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/sendLogSValueView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/generateAdifButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/teal_200"
+            android:text="Gen.ADIF"
+            android:textColor="@color/white" />
+
+        <Button
+            android:id="@+id/editButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/teal_200"
+            android:text="Edit"
+            android:textColor="@color/white" />
+
+        <Button
+            android:id="@+id/deleteButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/teal_200"
+            android:text="Delete"
+
+            android:textColor="@color/white" />
+    </LinearLayout>
+</LinearLayout>

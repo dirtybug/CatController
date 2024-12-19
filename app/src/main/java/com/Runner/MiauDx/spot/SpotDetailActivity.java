@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.Runner.MiauDx.HamRadioClusterConnection;
 import com.Runner.MiauDx.R;
+import com.Runner.MiauDx.comPort.ComPortManager;
 import com.Runner.MiauDx.logbook.LogDatabaseHelper;
 import com.Runner.MiauDx.radios.RadioBase;
 import com.Runner.MiauDx.radios.RadioFactory;
@@ -74,6 +75,7 @@ public class SpotDetailActivity extends AppCompatActivity {
                     String sentSpot = "DX " + callSign + " " + frequency;
                     HamRadioClusterConnection.getHandlerObj().sendCommand(sentSpot);
 
+
                 }
         );
         // Set up the button click listener
@@ -91,6 +93,9 @@ public class SpotDetailActivity extends AppCompatActivity {
         Button setFrequencyButton = findViewById(R.id.setFrequencyButton);
         setFrequencyButton.setOnClickListener(v -> {
             Toast.makeText(this, "Frequency set: " + frequency, Toast.LENGTH_SHORT).show();
+
+            ComPortManager.getInstance().Connect();
+
 
             RadioBase radioObj = RadioFactory.getRadio();
 

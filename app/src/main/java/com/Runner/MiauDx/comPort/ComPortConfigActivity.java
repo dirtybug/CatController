@@ -40,6 +40,12 @@ public class ComPortConfigActivity extends AppCompatActivity {
         return instance;
     }
 
+    public String getUsbDeviceId() {
+        SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        selectedDeviceId = preferences.getString(KEY_DEVICE_ID, "");
+        return selectedDeviceId;
+    }
+
     public int getBaudRate() {
         SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         this.baudRate = preferences.getInt(KEY_BAUD_RATE, 38400);
@@ -153,16 +159,17 @@ public class ComPortConfigActivity extends AppCompatActivity {
         flowControlSpinner.setSelection(this.flowControl);
         radioTypeSpinner.setSelection(selectedRadioType.ordinal());
 
-        // Set device ID spinner selection
-        if (selectedDeviceId != null) {
-            ArrayAdapter<String> deviceIdAdapter = (ArrayAdapter<String>) deviceIdSpinner.getAdapter();
-            if (deviceIdAdapter != null) {
-                int deviceIdPosition = deviceIdAdapter.getPosition(selectedDeviceId);
-                if (deviceIdPosition != -1) {
-                    deviceIdSpinner.setSelection(deviceIdPosition);
-                }
-            }
+
+        String[] deviceIds = ComPortManager.getInstance().getDeviceIds();
+        ArrayAdapter<String> deviceIdAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, deviceIds);
+        deviceIdAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        deviceIdSpinner.setAdapter(deviceIdAdapter);
+
+        int selectedDeviceIndex = getIndex(deviceIds, selectedDeviceId);
+        if (selectedDeviceIndex >= 0) {
+            deviceIdSpinner.setSelection(selectedDeviceIndex);
         }
+
 
         // Set up Refresh button
         Button refreshButton = findViewById(R.id.refreshButton);
@@ -210,6 +217,10 @@ public class ComPortConfigActivity extends AppCompatActivity {
         deviceIdAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         deviceIdSpinner.setAdapter(deviceIdAdapter);
 
+        int selectedDeviceIndex = getIndex(deviceIds, selectedDeviceId);
+        if (selectedDeviceIndex >= 0) {
+            deviceIdSpinner.setSelection(selectedDeviceIndex);
+        }
         if (deviceIds.length == 0) {
             Toast.makeText(this, "No devices found.", Toast.LENGTH_SHORT).show();
         }

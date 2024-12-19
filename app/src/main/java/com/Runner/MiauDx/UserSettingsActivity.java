@@ -43,7 +43,7 @@ public class UserSettingsActivity extends AppCompatActivity {
 
         // Save callsign on button click
         saveButton.setOnClickListener(v -> {
-            String newCallsign = callsignEditText.getText().toString().trim();
+            String newCallsign = callsignEditText.getText().toString().trim().toUpperCase();
             if (!newCallsign.isEmpty()) {
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putString(KEY_CALLSIGN, newCallsign);

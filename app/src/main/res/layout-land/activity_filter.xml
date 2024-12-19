@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp"
+        android:text="Select HF Bands"
+        android:textSize="18sp" />
+
+    <!-- GridLayout for Checkboxes -->
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="3"
+        android:padding="4dp"
+        android:rowCount="4">
+
+        <CheckBox
+            android:id="@+id/checkbox_160m"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:text="160m (1.8MHz)" />
+
+        <CheckBox
+            android:id="@+id/checkbox_80m"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:text="80m (3.5MHz)" />
+
+        <CheckBox
+            android:id="@+id/checkbox_40m"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:text="40m (7.0MHz)" />
+
+        <CheckBox
+            android:id="@+id/checkbox_20m"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:text="20m (14.0MHz)" />
+
+        <CheckBox
+            android:id="@+id/checkbox_15m"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:text="15m (21.0MHz)" />
+
+        <CheckBox
+            android:id="@+id/checkbox_12m"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:text="12m (24.0MHz)" />
+
+        <CheckBox
+            android:id="@+id/checkbox_10m"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:text="10m (28.0MHz)" />
+    </GridLayout>
+
+    <!-- Exit Button -->
+    <Button
+        android:id="@+id/exitButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/teal_200"
+        android:text="Exit"
+        android:textColor="@color/white" />
+</LinearLayout>

@@ -22,11 +22,13 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class ComPortManager extends Thread {
     private static ComPortManager instance;
 
-    private final String ACTION_USB_PERMISSION = "com.Runner.MiauDx.comPort.USB_PERMISSION";
+    private static final String ACTION_USB_PERMISSION = "com.Runner.MiauDx.comPort.USB_PERMISSION";
+
     private final UsbManager usbManager;
     private final BlockingQueue<String> commandQueue;
     private final Context context;
     private final List<UsbDevice> deviceList;
+
     private UsbDevice usbDevice;
     private UsbSerialDevice serialDevice;
 
@@ -35,11 +37,11 @@ public class ComPortManager extends Thread {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (ACTION_USB_PERMISSION.equals(action)) {
-                synchronized (this) {
-                    UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                if (device != null) {
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
                         onLog("Permission granted for device: " + device.getDeviceName());
-                        connect(device);
+                        connectToDevice(device);
                     } else {
                         onLog("Permission denied for device: " + device.getDeviceName());
                     }
@@ -48,26 +50,37 @@ public class ComPortManager extends Thread {
         }
     };
 
-    public ComPortManager(Context context) {
+    private ComPortManager(Context context) {
         this.context = context;
-        instance = this;
-
         this.usbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
         this.commandQueue = new LinkedBlockingQueue<>();
         this.deviceList = new ArrayList<>();
 
-        // Register receiver for USB permission
         IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
         context.registerReceiver(usbReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
     }
 
-    public static ComPortManager getInstance() {
+    public static synchronized ComPortManager getInstance(Context context) {
+        if (instance == null) {
+            instance = new ComPortManager(context.getApplicationContext());
+        }
         return instance;
     }
 
-    /**
-     * Gets an array of device IDs (device names).
-     */
+    public static synchronized ComPortManager getInstance() {
+
+        return instance;
+    }
+
+    public void Connect() {
+
+        String selectedDeviceId = ComPortConfigActivity.getInstance().getUsbDeviceId();
+        // Request permission for the selected device
+        if (!ComPortManager.getInstance().requestPermission(selectedDeviceId)) {
+            onLog("No devices Selected.");
+        }
+    }
+
     public String[] getDeviceIds() {
         List<String> deviceNames = new ArrayList<>();
         deviceList.clear();
@@ -82,9 +95,6 @@ public class ComPortManager extends Thread {
         return deviceNames.toArray(new String[0]);
     }
 
-    /**
-     * Request permission for a specific device by its ID (device name).
-     */
     public boolean requestPermission(String deviceName) {
         UsbDevice device = findDeviceByName(deviceName);
         if (device == null) {
@@ -102,13 +112,10 @@ public class ComPortManager extends Thread {
             usbManager.requestPermission(device, permissionIntent);
             return false;
         } else {
-            return connect(device);
+            return connectToDevice(device);
         }
     }
 
-    /**
-     * Find a UsbDevice by its device name.
-     */
     private UsbDevice findDeviceByName(String deviceName) {
         for (UsbDevice device : deviceList) {
             if (device.getDeviceName().equals(deviceName)) {
@@ -118,21 +125,20 @@ public class ComPortManager extends Thread {
         return null;
     }
 
-    public boolean connect(UsbDevice device) {
+    public boolean connectToDevice(UsbDevice device) {
+        if (serialDevice != null && serialDevice.isOpen() && device.equals(usbDevice)) {
+            onLog("Already connected to this device: " + device.getDeviceName());
+            return true;
+        }
+
         try {
-            this.usbDevice = device;
-            onLog("Device Name: " + device.getDeviceName());
-            onLog("Vendor ID: " + device.getVendorId());
-            onLog("Product ID: " + device.getProductId());
-
-
             UsbDeviceConnection connection = usbManager.openDevice(device);
             if (connection == null) {
                 onLog("Error: Unable to open device. Ensure permissions are granted.");
                 return false;
             }
 
-            UsbInterface usbInterface = device.getInterface(0); // Replace index if needed
+            UsbInterface usbInterface = device.getInterface(0);
             if (usbInterface == null) {
                 onLog("Error: UsbInterface is null.");
                 return false;
@@ -145,22 +151,14 @@ public class ComPortManager extends Thread {
                 return false;
             }
 
-            UsbSerialDevice serialDevice = UsbSerialDevice.createUsbSerialDevice(usbDevice, connection);
-            if (serialDevice != null) {
-                if (serialDevice.open()) {
-                    serialDevice.setBaudRate(ComPortConfigActivity.getInstance().getBaudRate());
-                    serialDevice.setDataBits(ComPortConfigActivity.getInstance().getDataBits());
-                    serialDevice.setStopBits(ComPortConfigActivity.getInstance().getStopBits());
-                    serialDevice.setParity(ComPortConfigActivity.getInstance().getParity());
-                    serialDevice.setFlowControl(ComPortConfigActivity.getInstance().getFlowControl());
+            UsbSerialDevice newSerialDevice = UsbSerialDevice.createUsbSerialDevice(device, connection);
+            if (newSerialDevice != null) {
+                if (newSerialDevice.open()) {
+                    configureSerialDevice(newSerialDevice);
+                    serialDevice = newSerialDevice;
+                    usbDevice = device;
 
-                    this.serialDevice = serialDevice;
-                    serialDevice.read(this::onReceivedData);
-                    onLog("Connected to " + usbDevice.getDeviceName());
-
-
-
-                    // Start the thread
+                    onLog("Connected to " + device.getDeviceName());
                     this.start();
                     return true;
                 } else {
@@ -172,40 +170,23 @@ public class ComPortManager extends Thread {
         } catch (Exception e) {
             onLog("Error connecting to device: " + e.getMessage());
         }
+
         return false;
     }
 
-    private void onLog(String message) {
-        MainActivity.getHandlerObj().logMessage(message);
+    private void configureSerialDevice(UsbSerialDevice device) {
+        device.setBaudRate(ComPortConfigActivity.getInstance().getBaudRate());
+        device.setDataBits(ComPortConfigActivity.getInstance().getDataBits());
+        device.setStopBits(ComPortConfigActivity.getInstance().getStopBits());
+        device.setParity(ComPortConfigActivity.getInstance().getParity());
+        device.setFlowControl(ComPortConfigActivity.getInstance().getFlowControl());
+
+        device.read(this::onReceivedData);
     }
 
     private void onReceivedData(byte[] data) {
         String response = new String(data);
         MainActivity.getHandlerObj().logMessage("Response: " + response);
-    }
-
-    @Override
-    public void run() {
-        try {
-            while (!isInterrupted()) {
-                String command = commandQueue.take();
-                sendCommand(command);
-            }
-        } catch (InterruptedException e) {
-            onLog("Command sender thread interrupted.");
-        }
-    }
-
-    public void disconnect() {
-        this.interrupt();
-
-        if (serialDevice != null) {
-            serialDevice.close();
-            onLog("Disconnected.");
-        }
-
-        // Unregister the USB receiver
-        context.unregisterReceiver(usbReceiver);
     }
 
     public void queueCommand(String command) {
@@ -230,5 +211,31 @@ public class ComPortManager extends Thread {
         }
     }
 
+    @Override
+    public void run() {
+        try {
+            while (!isInterrupted()) {
+                String command = commandQueue.take();
+                sendCommand(command);
+            }
+        } catch (InterruptedException e) {
+            onLog("Command sender thread interrupted.");
+        }
+    }
 
+    public void disconnect() {
+        this.interrupt();
+
+        if (serialDevice != null) {
+            serialDevice.close();
+            onLog("Serial device disconnected.");
+        }
+
+        context.unregisterReceiver(usbReceiver);
+        onLog("USB receiver unregistered.");
+    }
+
+    private void onLog(String message) {
+        MainActivity.getHandlerObj().logMessage(message);
+    }
 }

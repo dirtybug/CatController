@@ -3,6 +3,8 @@ package com.Runner.MiauDx;
 import android.content.Context;
 import android.util.Log;
 
+import com.Runner.MiauDx.cqMode.CQModeActivity;
+
 import org.apache.commons.net.telnet.TelnetClient;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,7 +25,7 @@ public class HamRadioClusterConnection extends Thread {
 
     private final TelnetClient telnetClient;
     private final String callsign;
-    private static HamRadioClusterConnection obj = null;
+    private static volatile HamRadioClusterConnection instance;
     private JSONArray clusters;
     private DXCCLoader dxccload;
     private PrintWriter writer;
@@ -31,39 +33,54 @@ public class HamRadioClusterConnection extends Thread {
     private int currentIndex = 0;
     private BlockingQueue<String> commandQueue;
     private volatile boolean isConnected = false;
+    private volatile boolean isRunning = true;
 
-    public HamRadioClusterConnection(Context context) {
+    private HamRadioClusterConnection(Context context) {
         try {
             InputStream is = context.getAssets().open("ham_radio_clusters.json");
-            byte[] buffer = new byte[1024];
-            int size = is.available();
+            byte[] buffer = new byte[is.available()];
             is.read(buffer);
             is.close();
+
             String jsonString = new String(buffer, StandardCharsets.UTF_8);
             clusters = new JSONArray(jsonString);
-            obj = this;
 
             this.commandQueue = new LinkedBlockingQueue<>();
             this.dxccload = new DXCCLoader(context);
         } catch (IOException | JSONException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Failed to load cluster data: " + e.getMessage(), e);
         }
+
         callsign = UserSettingsActivity.getCallsign(context);
-
-
         this.telnetClient = new TelnetClient();
     }
 
     public static HamRadioClusterConnection getHandlerObj() {
-        return obj;
+        return instance;
+    }
+
+    public static HamRadioClusterConnection getInstance(Context context) {
+        if (instance == null) {
+            synchronized (HamRadioClusterConnection.class) {
+                if (instance == null) {
+                    instance = new HamRadioClusterConnection(context);
+                }
+            }
+        }
+        return instance;
+    }
+
+    public boolean isRunning() {
+        return isConnected;
     }
 
     @Override
     public void run() {
-        while (true) {
+        while (isRunning) {
             if (!isConnected) {
                 if (!attemptConnection()) {
-                    onLog("Retrying connection...");
+                    onLog("Retrying connection in 5 seconds...");
+                    sleep(5000);
                     continue;
                 }
             }
@@ -73,13 +90,14 @@ public class HamRadioClusterConnection extends Thread {
                 while (isConnected && (line = reader.readLine()) != null) {
                     processCommandQueue();
                     onLog("Received line: " + line);
-                    extractSpotInfo(line); // Keeping your original method untouched
+                    extractSpotInfo(line);
                 }
             } catch (IOException e) {
                 onLog("Connection lost: " + e.getMessage());
                 disconnect();
             }
         }
+        onLog("Thread has stopped.");
     }
 
     private boolean attemptConnection() {
@@ -103,7 +121,10 @@ public class HamRadioClusterConnection extends Thread {
             writer.println(callsign);
             onLog("Sent callsign: " + callsign);
 
-            writer.println("SET/DXITU");
+            sendCommand("SET/DXITU");
+            sendCommand("accept/spots");
+            sendCommand("clear/spots all");
+
 
             isConnected = true;
             return true;
@@ -156,7 +177,7 @@ public class HamRadioClusterConnection extends Thread {
 
     public void sendCommand(String command) {
         try {
-            commandQueue.put(command); // Queue the command
+            commandQueue.put(command);
         } catch (InterruptedException e) {
             onLog("Failed to queue command: " + e.getMessage());
         }
@@ -180,29 +201,46 @@ public class HamRadioClusterConnection extends Thread {
             // Example line: "DX de SV8SYK:    18100.0  N4ZR                                        2014Z"
             String[] parts = line.split("\\s+");
             if (parts.length >= 5 && parts[0].equals("DX") && parts[1].equals("de")) {
-                String spotter = line.substring(6, 16).trim();        // Characters 7-16 (spotter callsign)
-                String frequency = line.substring(17, 26).trim();    // Characters 19-27 (frequency)
-                String dxCallSign = line.substring(26, 39).trim();      // Characters 29-40 (spotted callsign)
-                String time = line.substring(70, 75).trim();         // Characters 42-46 (time)
-                String coment = line.substring(39, 67);
-                String location = parts[parts.length - 3];
-                location += ", " + parts[parts.length - 1];
+                String spotter = line.substring(6, 16).trim();
+                String frequency = line.substring(17, 26).trim();
+                String dxCallSign = line.substring(26, 39).trim();
+                String time = line.substring(70, 75).trim();
+                String comment = line.substring(39, 67);
+                String location = parts[parts.length - 3] + ", " + parts[parts.length - 1];
+                spotter = spotter.replace(":", "");
 
                 if (dxCallSign.equals(this.callsign)) {
-                    String spoter = spotter.replace(":", "");
-                    onLog("You were spoted By:" + spoter);
+                    onLog("You were spotted by: " + spotter);
+                    if (CQModeActivity.getInstance() != null) {
+                        String finalSpotter = spotter;
+                        CQModeActivity.getInstance().runOnUiThread(() -> {
+                            CQModeActivity.getInstance().addNewDX(finalSpotter,
+                                    comment,
+                                    location);
+                        });
+                    }
                 } else {
                     String flag = this.dxccload.getFlagFromCallSign(dxCallSign);
-                    MainActivity.getHandlerObj().addSpot(frequency, flag, dxCallSign, location, coment);
+                    MainActivity.getHandlerObj().addSpot(frequency, flag, dxCallSign, location, comment);
                 }
             }
 
             Log.v(TAG, line);
         } catch (Exception e) {
             onLog("Failed to parse spot info: " + e.getMessage());
-            disconnect();
         }
     }
 
+    public void stopConnection() {
+        isRunning = false;
+        disconnect();
+    }
 
+    private void sleep(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
 }

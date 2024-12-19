@@ -13,6 +13,7 @@
         android:required="true" />
 
     <application
+        android:hardwareAccelerated="true"
 
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -27,6 +28,7 @@
         <activity
             android:name="com.Runner.MiauDx.MainActivity"
             android:exported="true"
+
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -37,25 +39,38 @@
         <activity
             android:name=".comPort.ComPortConfigActivity"
             android:exported="false"
+
             android:label="Serial Port Config" />
         <!-- Popup Activity -->
         <activity
             android:name=".FilterBandActivity"
+
             android:label="Filter Band" />
 
         <!-- Spot Detail Activity -->
         <activity
             android:name=".spot.SpotDetailActivity"
+
             android:label="Spot Details" />
         <activity
             android:name=".logbook.ViewLogsActivity"
+
             android:label="Log Book" />
         <activity
             android:name=".logbook.EditLogActivity"
+
             android:label="Edit log" />
         <activity
             android:name=".UserSettingsActivity"
+
             android:label="Edit User" />
+
+
+        <activity
+            android:name=".cqMode.CQModeActivity"
+            android:label="Cq Mode" />
+
+        />
 
 
     </application>
