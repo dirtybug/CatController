@@ -16,9 +16,9 @@
     <GridLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:columnCount="3"
+        android:columnCount="4"
         android:padding="4dp"
-        android:rowCount="4">
+        android:rowCount="3">
 
         <CheckBox
             android:id="@+id/checkbox_160m"
@@ -40,6 +40,13 @@
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
             android:text="40m (7.0MHz)" />
+
+        <CheckBox
+            android:id="@+id/checkbox_30m"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:text="30m (10.0MHz)" />
 
         <CheckBox
             android:id="@+id/checkbox_20m"
@@ -75,6 +82,13 @@
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
             android:text="10m (28.0MHz)" />
+
+        <CheckBox
+            android:id="@+id/checkbox_6m"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:text="6m (50.0MHz)" />
     </GridLayout>
 
     <!-- Exit Button -->

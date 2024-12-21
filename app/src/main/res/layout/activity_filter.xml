@@ -31,6 +31,12 @@
         android:text="40m (7.0MHz)" />
 
     <CheckBox
+        android:id="@+id/checkbox_30m"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="30m (10.0MHz)" />
+
+    <CheckBox
         android:id="@+id/checkbox_20m"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -59,6 +65,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="10m (28.0MHz)" />
+
+    <CheckBox
+        android:id="@+id/checkbox_6m"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="6m (50.0MHz)" />
 
     <Button
         android:id="@+id/exitButton"

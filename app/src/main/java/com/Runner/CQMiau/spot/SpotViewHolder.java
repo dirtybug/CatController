@@ -23,6 +23,7 @@ public class SpotViewHolder extends RecyclerView.ViewHolder {
         callSignView = itemView.findViewById(R.id.callSignView);
         locationView = itemView.findViewById(R.id.locationView);
         time = itemView.findViewById(R.id.timeView);
+
     }
 
     public void bind(Spot spot, Context context) {
