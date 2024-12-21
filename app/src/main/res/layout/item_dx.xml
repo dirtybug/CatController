@@ -12,6 +12,7 @@
         android:textSize="16sp"
         android:textStyle="bold" />
 
+
     <TextView
         android:id="@+id/comment"
         android:layout_width="match_parent"

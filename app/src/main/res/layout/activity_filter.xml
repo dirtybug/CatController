@@ -37,6 +37,12 @@
         android:text="20m (14.0MHz)" />
 
     <CheckBox
+        android:id="@+id/checkbox_18m"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="17m (18.0MHz)" />
+
+    <CheckBox
         android:id="@+id/checkbox_15m"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

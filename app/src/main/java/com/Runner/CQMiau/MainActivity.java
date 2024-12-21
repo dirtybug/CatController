@@ -20,10 +20,7 @@ import com.Runner.CQMiau.comPort.ComPortConfigActivity;
 import com.Runner.CQMiau.comPort.ComPortManager;
 import com.Runner.CQMiau.cqMode.CQModeActivity;
 import com.Runner.CQMiau.logbook.ViewLogsActivity;
-import com.Runner.CQMiau.spot.Spot;
 import com.Runner.CQMiau.spot.SpotsAdapter;
-
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -91,18 +88,21 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Restore saved logs and RecyclerView data after rotation
-        if (savedInstanceState != null) {
-            String savedLogs = savedInstanceState.getString(KEY_LOGS, "");
-            logsView.setText(savedLogs);
 
-            ArrayList<Spot> savedSpots = savedInstanceState.getParcelableArrayList(KEY_SPOTS_LIST);
-            if (savedSpots != null) {
-                spotsAdapter.setSpots(savedSpots);
-            }
-        }
     }
 
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        String savedLogs = savedInstanceState.getString(KEY_LOGS, "");
+        logsView.setText(savedLogs);
+
+        // Restore RecyclerView state
+        if (savedInstanceState.containsKey(KEY_SPOTS_LIST)) {
+            spotsRecyclerView.getLayoutManager().onRestoreInstanceState(savedInstanceState.getParcelable(KEY_SPOTS_LIST));
+        }
+    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -110,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Save the logs for restoration
         outState.putString(KEY_LOGS, logsView.getText().toString());
+        outState.putParcelable(KEY_SPOTS_LIST, spotsRecyclerView.getLayoutManager().onSaveInstanceState());
     }
 
     @Override

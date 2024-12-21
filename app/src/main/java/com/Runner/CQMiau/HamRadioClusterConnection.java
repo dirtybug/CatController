@@ -215,7 +215,7 @@ public class HamRadioClusterConnection extends Thread {
                         String flag = this.dxccload.getFlagFromCallSign(dxCallSign);
 
                         CQModeActivity.getInstance().runOnUiThread(() -> {
-                            CQModeActivity.getInstance().addNewDX(finalSpotter, flag,
+                            CQModeActivity.addNewDX(finalSpotter, flag,
                                     comment,
                                     location);
                         });
