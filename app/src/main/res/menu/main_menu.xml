@@ -15,6 +15,6 @@
         android:title="@string/user_settings" />
     <item
         android:id="@+id/DxMode"
-        android:title="DX Mode" />
+        android:title="CQ Mode" />
 
 </menu>

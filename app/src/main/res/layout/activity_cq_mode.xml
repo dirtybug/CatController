@@ -103,34 +103,28 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Frequency -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Frequency" />
 
-            <Spinner
-                android:id="@+id/frequency"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp" />
-
-            <!-- Time -->
-            <TextView
-                android:id="@+id/label_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Time" />
-
-            <EditText
-                android:id="@+id/input_time"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:hint="Enter Time" />
+                android:orientation="horizontal">
 
+                <!-- Time -->
+                <TextView
+                    android:id="@+id/label_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Time" />
+
+                <EditText
+                    android:id="@+id/input_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:hint="Enter Time" />
+            </LinearLayout>
             <!-- RecyclerView -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_view"

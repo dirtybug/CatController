@@ -4,23 +4,31 @@ plugins {
 
 
 android {
-    namespace 'com.Runner.MiauDx'
+    namespace 'com.Runner.CQMiau'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.Runner.MiauDx"
+        applicationId "com.Runner.CQMiau"
         minSdk 26
         targetSdk 34
-        versionCode 103
-        versionName "1.03"
-
+        versionCode 104
+        versionName "1.04"
+        resValue "mipmap", "ic_launcher", "@mipmap/ic_launcher"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
+
+        debug {
+            // Use the same launcher icon as the release build
+            resValue "mipmap", "ic_launcher", "@mipmap/ic_launcher"
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            // Use the same launcher icon
+            resValue "mipmap", "ic_launcher", "@mipmap/ic_launcher"
         }
     }
     compileOptions {
