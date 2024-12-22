@@ -4,7 +4,7 @@ public class FT891 extends RadioBase {
 
     @Override
     public void setFrequency(String frequencyMHz) {
-        // Convert MHz to Hz (e.g., 144360.0 MHz -> 144360000 Hz)
+        // Convert MHz to Hz (e.g., 144360.0 KHz -> 144360000 Hz)
         double frequency = Double.parseDouble(frequencyMHz);
         long frequencyHz = Math.round(frequency * 1_000);
 

@@ -1,0 +1,719 @@
+# Extracted from: TT588.cxx
+{
+	freqA = freq;
+	vfo_corr = (freq / 1e6) * VfoAdj + 0.5;
+	long xfreq = freqA + vfo_corr;
+	cmd = TT588setFREQA;
+	cmd[5] = xfreq & 0xff; xfreq = xfreq >> 8;
+	cmd[4] = xfreq & 0xff; xfreq = xfreq >> 8;
+	cmd[3] = xfreq & 0xff; xfreq = xfreq >> 8;
+	cmd[2] = xfreq & 0xff;
+	sendCommand(cmd);
+	showresp(WARN, HEX, "set vfo A", cmd, replystr);
+	return ;
+}
+
+# Extracted from: FT450D.cxx
+{
+	if (useB) selectA();
+	freqA = freq;
+	cmd = "FA00000000;";
+	for (int i = 9; i > 1; i--) {
+		cmd[i] += freq % 10;
+		freq /= 10;
+	}
+	sendCommand(cmd);
+	showresp(WARN, ASC, "SET vfo A", cmd, replystr);
+	if (useB) selectB();
+}
+
+# Extracted from: FTdx3000.cxx
+{
+	freqA = freq;
+	cmd = "FA00000000;";
+	for (int i = 9; i > 1; i--) {
+		cmd[i] += freq % 10;
+		freq /= 10;
+	}
+	sendCommand(cmd);
+	showresp(WARN, ASC, "SET vfo A", cmd, replystr);
+}
+
+# Extracted from: TS590SG.cxx
+{
+	A.freq = freq;
+	cmd = "FA00000000000;";
+	for (int i = 12; i > 1; i--) {
+		cmd[i] += freq % 10;
+		freq /= 10;
+	}
+	sendCommand(cmd, 0);
+	showresp(WARN, ASC, "set vfo A", cmd, "");
+}
+
+# Extracted from: FT767.cxx
+{
+	freqA = freq;
+	freq /=10; // 767 does not support 1 Hz resolution
+	cmd = to_bcd(freq, 8);
+	cmd += 0x08; // SET FREQUENCY
+	sendCommand(cmd);
+}
+
+# Extracted from: AOR5K.cxx
+{
+	freqA = freq;
+	cmd = "VE0000000000\r";
+	for (int i = 11; i > 1; i--) {
+		cmd[i] += freq % 10;
+		freq /= 10;
+	}
+	wait_char('\r', 1, AOR5K_WAIT_TIME, "set VFO A", ASC);
+}
+
+# Extracted from: FT1000MP.cxx
+{
+	A.freq = freq;
+	init_cmd();
+	freq /=10; // 1000MP does not support 1 Hz resolution
+	for (int i = 0; i < 4; i++) {
+		cmd[i] = (unsigned char)(freq % 10); freq /= 10;
+		cmd[i] |= (unsigned char)((freq % 10) * 16); freq /= 10;
+	}
+	cmd[4] = 0x0A;
+	sendCommand(cmd, 0);
+LOG_INFO("%s", str2hex(cmd.c_str(), cmd.length()));
+}
+
+# Extracted from: IC7600.cxx
+{
+	A.freq = freq;
+	cmd.assign(pre_to).append("\x05");
+	cmd.append( to_bcd_be( freq, 10 ) );
+	cmd.append( post );
+	waitFB("set vfo A");
+}
+
+# Extracted from: TS870S.cxx
+{
+	A.freq = freq;
+	cmd = "FA00000000000;";
+	for (int i = 12; i > 1; i--) {
+		cmd[i] += freq % 10;
+		freq /= 10;
+	}
+	sendCommand(cmd);
+	showresp(WARN, ASC, "set vfo A", cmd, "");
+}
+
+# Extracted from: FT847.cxx
+{
+	A.freq = freq;
+	freq /=10; // 847 does not support 1 Hz resolution
+	cmd = to_bcd(freq, 8);
+	cmd += 0x01;
+	replystr.clear();
+	sendCommand(cmd);
+	showresp(WARN, HEX, "set vfo A", cmd, replystr);
+}
+
+# Extracted from: IC718.cxx
+{
+	freqA = freq;
+	cmd = pre_to;
+	cmd += '\x05';
+	cmd.append( to_bcd_be( freq, 10 ) );
+	cmd.append( post );
+	waitFB("set vfo A");
+}
+
+# Extracted from: TS570.cxx
+{
+	A.freq = freq;
+	cmd = "FA00000000000;";
+	for (int i = 12; i > 1; i--) {
+		cmd[i] += freq % 10;
+		freq /= 10;
+	}
+	sendCommand(cmd);
+	showresp(WARN, ASC, "set vfoA", cmd, "");
+}
+
+# Extracted from: FT990a.cxx
+{
+	A.freq = freq;
+	freq /=10;
+	cmd = to_bcd_be(freq, 8);
+	cmd += 0x0A;
+	sendCommand(cmd);
+	showresp(WARN, HEX, "set freq A", cmd, "");
+}
+
+# Extracted from: FT950.cxx
+{
+	freqA = freq;
+	cmd = "FA00000000;";
+	for (int i = 9; i > 1; i--) {
+		cmd[i] += freq % 10;
+		freq /= 10;
+	}
+	sendCommand(cmd);
+	showresp(WARN, ASC, "SET vfo A", cmd, replystr);
+}
+
+# Extracted from: TS850.cxx
+{
+	freqA = freq;
+	cmd = "FA00000000000;";
+	for (int i = 12; i > 1; i--) {
+		cmd[i] += freq % 10;
+		freq /= 10;
+	}
+	sendCommand(cmd);
+	showresp(WARN, ASC, "set vfo A", cmd, "");
+}
+
+# Extracted from: TS450S.cxx
+{
+	freqA = freq;
+	cmd = "FA00000000000;";
+	for (int i = 12; i > 1; i--) {
+		cmd[i] += freq % 10;
+		freq /= 10;
+	}
+	sendCommand(cmd);
+	showresp(WARN, ASC, "set vfo A", cmd, "");
+}
+
+# Extracted from: IC910.cxx
+{
+	long nufreq;
+	if (freq > 1300000000L) nufreq = 1300000000L;
+	else if (freq > 450000000L && freq < 1240000000L && freqA <= 450000000L)
+		nufreq = 1240000000L;
+	else if (freq > 450000000L && freq < 1240000000L && freqA >= 1240000000L)
+		nufreq = 450000000L;
+	else if (freq > 148000000L && freq < 430000000L && freqA <= 148000000L)
+		nufreq = 430000000L;
+	else if (freq > 148000000L && freq < 430000000L && freqA >= 430000000L)
+		nufreq = 148000000L;
+	else if (freq < 144000000L) nufreq = 144000000L;
+	else nufreq = freq;
+	freqA = nufreq;
+
+	if (freqA != freq) {
+		vfoA.freq = freqA;
+		setFreqDispA((void*)0);
+	}
+	A.freq = freqA;
+	cmd = pre_to;
+	cmd += '\x05';
+	cmd.append( to_bcd_be( freqA, 10 ) );
+	cmd.append( post );
+	waitFB("set vfo A");}
+
+# Extracted from: FT1000.cxx
+{
+	freqA = freq;
+	freq /=10; // 1000 does not support 1 Hz resolution
+	cmd = to_bcd(freq, 8);
+	cmd += 0x0A;
+	sendCommand(cmd, 0);
+}
+
+# Extracted from: IC7300.cxx
+{
+	A.freq = freq;
+	cmd.assign(pre_to).append("\x05");
+	cmd.append( to_bcd_be( freq, 10 ) );
+	cmd.append( post );
+	waitFB("set vfo A");
+}
+
+# Extracted from: IC728.cxx
+{
+	freqA = freq;
+	cmd = pre_to;
+	cmd += '\x05';
+	cmd.append( to_bcd_be( freq, 8 ) );
+	cmd.append( post );
+	waitFB("set vfo A");
+}
+
+# Extracted from: FTdx9000.cxx
+{
+	freqA = freq;
+	cmd = "FA00000000;";
+	for (int i = 9; i > 1; i--) {
+		cmd[i] += freq % 10;
+		freq /= 10;
+	}
+	sendCommand(cmd);
+	showresp(WARN, ASC, "SET vfo A", cmd, replystr);
+}
+
+# Extracted from: FT817.cxx
+{
+	if (get_vfoAorB() == 1) return;
+	if (ft817_memory_mode) return;
+	freqA = freq;
+	freq /=10; // 817 does not support 1 Hz resolution
+	cmd = to_bcd(freq, 8);
+	cmd += 0x01;
+	sendCommand(cmd);
+	showresp(INFO, HEX, "set freq A", cmd, replystr);
+}
+
+# Extracted from: TS990.cxx
+{
+	A.freq = freq;
+	cmd = "FA00000000000;";
+	for (int i = 12; i > 1; i--) {
+		cmd[i] += freq % 10;
+		freq /= 10;
+	}
+	sendCommand(cmd);
+	showresp(INFO, ASC, "set vfo A", cmd, "");
+}
+
+# Extracted from: TS2000.cxx
+{
+	A.freq = freq;
+	cmd = "FA00000000000;";
+	for (int i = 12; i > 1; i--) {
+		cmd[i] += freq % 10;
+		freq /= 10;
+	}
+	sendCommand(cmd);
+	showresp(WARN, ASC, "set vfo A", cmd, "");
+}
+
+# Extracted from: FT100D.cxx
+{
+	A.freq = freq;
+	freq /=10; // 100D does not support 1 Hz resolution
+	cmd = to_bcd_be(freq, 8);
+	cmd += 0x0A;
+	sendCommand(cmd);
+	showresp(WARN, HEX, "set freq A", cmd, replystr);
+}
+
+# Extracted from: K2.cxx
+{
+	freqA = freq;
+	cmd = "FA00000000000;";
+	for (int i = 12; i > 1; i--) {
+		cmd[i] += freq % 10;
+		freq /= 10;
+	}
+	sendCommand(cmd);
+	showresp(WARN, ASC, "SET vfo A", cmd, replystr);
+}
+
+# Extracted from: FT900.cxx
+{
+	A.freq = freq;
+	freq /=10; // FT-900 does not support 1 Hz resolution
+	cmd = to_bcd_be(freq, 8);
+	cmd += 0x0A;
+	sendCommand(cmd);
+	showresp(WARN, HEX, "set vfo A", cmd, replystr);
+}
+
+# Extracted from: FT891.cxx
+{
+	freqA = freq;
+	cmd = "FA000000000;";
+	for (int i = 0; i < ndigits; i++) {
+		cmd[ndigits + 1 - i] += freq % 10;
+		freq /= 10;
+	}
+	sendCommand(cmd);
+	showresp(WARN, ASC, "SET vfo A", cmd, replystr);
+}
+
+# Extracted from: TT599.cxx
+{
+	freqA = freq;
+	cmd = "*AF";
+	cmd.append( to_decimal( freq, 8 ) );
+	cmd += '\r';
+	sendCommand(cmd);
+	get_vfoA();
+}
+
+# Extracted from: FTdx1200.cxx
+{
+	freqA = freq;
+	cmd = "FA00000000;";
+	for (int i = 9; i > 1; i--) {
+		cmd[i] += freq % 10;
+		freq /= 10;
+	}
+	sendCommand(cmd);
+	showresp(WARN, ASC, "SET vfo A", cmd, replystr);
+}
+
+# Extracted from: IC735.cxx
+{
+	freqA = freq;
+	cmd = pre_to;
+	cmd += '\x05';
+	cmd.append( to_bcd_be( freq, 8 ) );
+	cmd.append( post );
+	waitFB("set vfo A");
+}
+
+# Extracted from: TS480SAT.cxx
+{
+	A.freq = freq;
+	cmd = "FA00000000000;";
+	for (int i = 12; i > 1; i--) {
+		cmd[i] += freq % 10;
+		freq /= 10;
+	}
+	sendCommand(cmd);
+	showresp(WARN, ASC, "set vfo A", cmd, "");
+}
+
+# Extracted from: IC756PRO3.cxx
+{
+	A.freq = freq;
+	cmd = pre_to;
+	cmd += '\x05';
+	cmd.append( to_bcd_be( freq, 10 ) );
+	cmd.append( post );
+	waitFB("set vfo A");
+}
+
+# Extracted from: IC7000.cxx
+{
+	A.freq = freq;
+	cmd = pre_to;
+	cmd += '\x05';
+	cmd.append( to_bcd_be( freq, 10 ) );
+	cmd.append(post);
+	waitFB("set vfo A");
+}
+
+# Extracted from: TT538.cxx
+{
+	freqA = freq;
+	long xfreq = freqA * (1 + VfoAdj/1e6) + 0.5;
+	cmd = TT538setFREQA;
+	cmd[5] = xfreq & 0xff; xfreq = xfreq >> 8;
+	cmd[4] = xfreq & 0xff; xfreq = xfreq >> 8;
+	cmd[3] = xfreq & 0xff; xfreq = xfreq >> 8;
+	cmd[2] = xfreq & 0xff;
+	sendCommand(cmd);
+	set_if_shift(pbt);
+	return ;
+}
+
+# Extracted from: FT991.cxx
+{
+	freqA = freq;
+	cmd = "FA000000000;";
+	for (int i = 0; i < ndigits; i++) {
+		cmd[ndigits + 1 - i] += freq % 10;
+		freq /= 10;
+	}
+	sendCommand(cmd);
+	showresp(WARN, ASC, "SET vfo A", cmd, replystr);
+}
+
+# Extracted from: TT566.cxx
+{
+	A.freq = freq;
+	cmd = TT566setFREQa;
+	cmd.append(to_decimal(freq, 8));
+	cmd += '\r';
+	sendCommand(cmd);
+	showresp(WARN, ASC, "set vfo A", cmd, replystr);
+	return;
+}
+
+# Extracted from: FT450.cxx
+{
+	freqA = freq;
+	cmd = "FA00000000;";
+	for (int i = 9; i > 1; i--) {
+		cmd[i] += freq % 10;
+		freq /= 10;
+	}
+	sendCommand(cmd);
+	showresp(WARN, ASC, "SET vfo A", cmd, replystr);
+}
+
+# Extracted from: TT563.cxx
+{
+	freqA = freq;
+	cmd = pre_to;
+	cmd += '\x05';
+	cmd.append( to_bcd_be( freq, 8 ) );
+	cmd.append( post );
+	sendCommand(cmd);
+	checkresponse();
+}
+
+# Extracted from: IC706MKIIG.cxx
+{
+	freqA = freq;
+	cmd = pre_to;
+	cmd += '\x05';
+	cmd.append( to_bcd_be( freq, 10 ) );
+	cmd.append( post );
+	waitFB("set vfo A");
+}
+
+# Extracted from: FT2000.cxx
+{
+	freqA = freq;
+	cmd = "FA00000000;";
+	for (int i = 9; i > 1; i--) {
+		cmd[i] += freq % 10;
+		freq /= 10;
+	}
+	sendCommand(cmd, 0);
+}
+
+# Extracted from: FT920.cxx
+{
+	A.freq = freq;
+	freq /=10; // 920 does not support 1 Hz resolution
+	cmd = to_bcd_be(freq, 8);
+	cmd += 0x0A;
+	sendCommand(cmd);
+	showresp(WARN, HEX, "set vfo A", cmd, replystr);
+}
+
+# Extracted from: FT5000.cxx
+{
+	freqA = freq;
+	cmd = "FA00000000;";
+	for (int i = 9; i > 1; i--) {
+		cmd[i] += freq % 10;
+		freq /= 10;
+	}
+	sendCommand(cmd);
+	showresp(WARN, ASC, "SET vfo A", cmd, replystr);
+}
+
+# Extracted from: TS480HX.cxx
+{
+	A.freq = freq;
+	cmd = "FA00000000000;";
+	for (int i = 12; i > 1; i--) {
+		cmd[i] += freq % 10;
+		freq /= 10;
+	}
+	sendCommand(cmd);
+	showresp(WARN, ASC, "set vfo A", cmd, "");
+}
+
+# Extracted from: FT990.cxx
+{
+	A.freq = freq;
+	freq /=10; // 100D does not support 1 Hz resolution
+	cmd = to_bcd_be(freq, 8);
+	cmd += 0x0A;
+	sendCommand(cmd);
+	showresp(WARN, HEX, "set freq A", cmd, replystr);
+}
+
+# Extracted from: IC703.cxx
+{
+	freqA = freq;
+	cmd = pre_to;
+	cmd += '\x05';
+	cmd.append( to_bcd_be( freq, 10 ) );
+	cmd.append( post );
+	waitFB("set vfo A");
+}
+
+# Extracted from: DELTA-II.cxx
+{
+	freqA = freq;
+	cmd = pre_to;
+	cmd += '\x05';
+	cmd.append( to_bcd_be( freq, 8 ) );
+	cmd.append( post );
+	int ret = sendCommand(cmd);
+	if (ret != 6)
+		checkresponse();
+}
+
+# Extracted from: IC756.cxx
+{
+	A.freq = freq;
+	cmd = pre_to;
+	cmd += '\x05';
+	cmd.append( to_bcd_be( freq, 10 ) );
+	cmd.append( post );
+	waitFB("set vfo A");
+}
+
+# Extracted from: FT890.cxx
+{
+	A.freq = freq;
+	freq /=10; // 890 does not support 1 Hz resolution
+	cmd = to_bcd_be(freq, 8);
+	cmd += 0x0A;
+	sendCommand(cmd);
+	showresp(WARN, HEX, "set vfo A", cmd, replystr);
+}
+
+# Extracted from: Mark-V.cxx
+{
+	freqA = freq;
+	freq /=10; // 1000MP does not support 1 Hz resolution
+	cmd = to_bcd_be(freq, 8);
+	cmd += 0x0A;
+LOG_INFO("%s", str2hex(cmd.c_str(), cmd.length()));
+	sendCommand(cmd, 0);
+}
+
+# Extracted from: TT550.cxx
+{
+LOG_INFO("set vfo A %ld", freq);
+	freqA = freq;
+	if (onA)
+		set_vfo(freq);
+}
+
+# Extracted from: PCR1000.cxx
+{
+	freqA = A.freq = freq;
+	setFreqModeBW(A) ;
+}
+
+# Extracted from: IC7200.cxx
+{
+	A.freq = freq;
+	cmd = pre_to;
+	cmd += '\x05';
+	cmd.append( to_bcd_be( freq, 10 ) );
+	cmd.append( post );
+	waitFB("set vfo A");
+}
+
+# Extracted from: K3.cxx
+{
+	freqA = freq;
+	cmd = "FA00000000000;";
+	for (int i = 12; i > 1; i--) {
+		cmd[i] += freq % 10;
+		freq /= 10;
+	}
+	sendCommand(cmd);
+	showresp(INFO, ASC, "set vfo A", cmd, replystr);
+}
+
+# Extracted from: TS140.cxx
+{
+	freqA = freq;
+	cmd = "FA00000000000;";
+	for (int i = 12; i > 1; i--) {
+		cmd[i] += freq % 10;
+		freq /= 10;
+	}
+	sendCommand(cmd);
+}
+
+# Extracted from: KX3.cxx
+{
+	freqA = freq;
+	cmd = "FA00000000000;";
+	for (int i = 12; i > 1; i--) {
+		cmd[i] += freq % 10;
+		freq /= 10;
+	}
+	sendCommand(cmd);
+	showresp(INFO, ASC, "set vfo A", cmd, replystr);
+}
+
+# Extracted from: IC746.cxx
+{
+	A.freq = freq;
+	cmd = pre_to;
+	cmd += '\x05';
+	cmd.append( to_bcd_be( freq, 10 ) );
+	cmd.append( post );
+	waitFB("set vfo A");
+}
+
+# Extracted from: FT857D.cxx
+{
+	freqA = freq;
+	freq /=10; // 857D does not support 1 Hz resolution
+	cmd = to_bcd(freq, 8);
+	cmd += 0x01;
+	replystr.clear();
+	set_getACK();
+	showresp(WARN, HEX, "set vfo A", cmd, replystr);
+}
+
+# Extracted from: RAY152.cxx
+{
+	A.freq = freq;
+	cmd = "FT000000\r";
+	freq /= 100;
+	cmd[7] += freq % 10; freq /= 10;
+	cmd[6] += freq % 10; freq /= 10;
+	cmd[5] += freq % 10; freq /= 10;
+	cmd[4] += freq % 10; freq /= 10;
+	cmd[3] += freq % 10; freq /=10;
+	cmd[2] += freq;
+	sendCommand(cmd, 0);
+LOG_INFO("%s", cmd.c_str());
+	cmd[1] = 'R';
+	sendCommand(cmd, 0);
+LOG_INFO("%s", cmd.c_str());
+}
+
+# Extracted from: TT516.cxx
+{
+	A.freq = freq;
+	cmd = TT516setFREQA;
+	cmd[5] = freq & 0xff; freq = freq >> 8;
+	cmd[4] = freq & 0xff; freq = freq >> 8;
+	cmd[3] = freq & 0xff; freq = freq >> 8;
+	cmd[2] = freq & 0xff;
+	LOG_INFO(" %c%c %02X %02X %02X %02X %02X", cmd[0], cmd[1],
+		cmd[2] & 0xFF, cmd[3] & 0xFF, cmd[4] & 0xFF, cmd[5] & 0xFF, cmd[6]);
+	sendCommand(cmd);
+	return;
+}
+
+# Extracted from: FT747.cxx
+{
+	A.freq = freq;
+	freq /=10; // 747 does not support 1 Hz resolution
+	cmd = to_bcd_be(freq, 8);
+	cmd += 0x0A; // SET FREQUENCY
+	SLOG_INFO("cmd: %s", str2hex(cmd.c_str(), cmd.length()));
+	sendCommand(cmd);
+}
+
+# Extracted from: TS590S.cxx
+{
+	A.freq = freq;
+	cmd = "FA00000000000;";
+	for (int i = 12; i > 1; i--) {
+		cmd[i] += freq % 10;
+		freq /= 10;
+	}
+	sendCommand(cmd, 0);
+	showresp(WARN, ASC, "set vfo A", cmd, "");
+}
+
+# Extracted from: IC756PRO2.cxx
+{
+	A.freq = freq;
+	cmd = pre_to;
+	cmd += '\x05';
+	cmd.append( to_bcd_be( freq, 10 ) );
+	cmd.append( post );
+	waitFB("set vfo A");
+}
+
