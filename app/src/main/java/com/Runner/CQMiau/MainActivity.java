@@ -25,6 +25,8 @@ import com.Runner.CQMiau.spot.SpotsAdapter;
 public class MainActivity extends AppCompatActivity {
 
     private static final String DONATE = "https://www.paypal.com/donate/?hosted_button_id=BJ44UH97D4MMS";
+    private static final String SOURCE = "https://github.com/dirtybug/CatController/";
+
     private static final String KEY_LOGS = "logs"; // Key to save logs
     private static final String KEY_SPOTS_LIST = "spots_list"; // Key to save RecyclerView data
     static MainActivity obj;
@@ -127,6 +129,14 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 return true;
             }
+
+            case R.id.sourceCode: {
+                // Open the donation URL
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(SOURCE));
+                startActivity(intent);
+                return true;
+            }
+
             case R.id.UserSettings: {
                 startActivity(new Intent(this, UserSettingsActivity.class));
 

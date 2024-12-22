@@ -5,16 +5,22 @@
         android:id="@+id/open_radio"
 
         android:title="@string/open_radio" />
-    <item
-        android:id="@+id/donate"
 
-
-        android:title="@string/donate" />
     <item
         android:id="@+id/UserSettings"
         android:title="@string/user_settings" />
     <item
         android:id="@+id/DxMode"
         android:title="CQ Mode" />
+    <item
+        android:id="@+id/donate"
+
+
+        android:title="@string/donate" />
+    <item
+        android:id="@+id/sourceCode"
+
+
+        android:title="Git source code" />
 
 </menu>

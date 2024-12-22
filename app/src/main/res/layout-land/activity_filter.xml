@@ -5,89 +5,93 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingBottom="8dp"
-        android:text="Select HF Bands"
-        android:textSize="18sp" />
+
 
     <!-- GridLayout for Checkboxes -->
     <GridLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:columnCount="4"
-        android:padding="4dp"
-        android:rowCount="3">
+        android:padding="4dp">
 
         <CheckBox
             android:id="@+id/checkbox_160m"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
+            android:layout_columnWeight="1"
             android:text="160m (1.8MHz)" />
 
         <CheckBox
             android:id="@+id/checkbox_80m"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
+            android:layout_columnWeight="1"
             android:text="80m (3.5MHz)" />
 
         <CheckBox
             android:id="@+id/checkbox_40m"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
+            android:layout_columnWeight="1"
             android:text="40m (7.0MHz)" />
 
         <CheckBox
             android:id="@+id/checkbox_30m"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
+            android:layout_columnWeight="1"
             android:text="30m (10.0MHz)" />
 
         <CheckBox
             android:id="@+id/checkbox_20m"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
+            android:layout_columnWeight="1"
             android:text="20m (14.0MHz)" />
 
         <CheckBox
             android:id="@+id/checkbox_18m"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
+            android:layout_columnWeight="1"
             android:text="17m (18.0MHz)" />
 
         <CheckBox
             android:id="@+id/checkbox_15m"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
+            android:layout_columnWeight="1"
             android:text="15m (21.0MHz)" />
 
         <CheckBox
             android:id="@+id/checkbox_12m"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
+            android:layout_columnWeight="1"
             android:text="12m (24.0MHz)" />
 
         <CheckBox
             android:id="@+id/checkbox_10m"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
+            android:layout_columnWeight="1"
             android:text="10m (28.0MHz)" />
 
         <CheckBox
             android:id="@+id/checkbox_6m"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
+            android:layout_columnWeight="1"
             android:text="6m (50.0MHz)" />
     </GridLayout>
 
