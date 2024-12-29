@@ -46,6 +46,7 @@ public class SpotsAdapter extends RecyclerView.Adapter<SpotViewHolder> {
         Spot spot = visibleSpots.get(position);
         if (spot == null) return;
         holder.frequencyView.setText(spot.getFrequency());
+
         holder.callSignView.setText(spot.getFlag() + spot.getCallSign());
         holder.locationView.setText(spot.getComment());
         holder.time.setText(spot.getTime());

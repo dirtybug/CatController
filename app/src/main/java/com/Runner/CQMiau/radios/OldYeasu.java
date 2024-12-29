@@ -1,11 +1,8 @@
 package com.Runner.CQMiau.radios;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+public class OldYeasu extends RadioBase {
 
-public class FT857 extends RadioBase {
-
-    private static final byte CAT_FREQ_SET = (byte) 0x01; // Command byte for frequency set
+    protected  byte CAT_FREQ_SET = (byte) 0x01; // Command byte for frequency set
     private static final byte CAT_MODE_SET = (byte) 0x07; // Command byte for mode set
 
     // Mode constants
@@ -19,10 +16,11 @@ public class FT857 extends RadioBase {
     private static final byte CAT_MODE_PKT = (byte) 0x07;
     private static final byte CAT_MODE_FMN = (byte) 0x08;
 
+
     @Override
-    public void setFrequency(String frequencyMHz) {
+    public void setFrequency(String frequencyKHz) {
         // Convert frequency from MHz to Hz
-        long frequencyHz = Math.round(Double.parseDouble(frequencyMHz) * 1_000);
+        long frequencyHz = Math.round(Double.parseDouble(frequencyKHz) * 1_000);
 
         // Prepare the 5-byte command for setting frequency
         byte[] rigFreq = new byte[5];
@@ -95,14 +93,6 @@ public class FT857 extends RadioBase {
         return hexString.toString();
     }
 
-    private byte[] toBCD(long value) {
-        ByteBuffer buffer = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN);
-        for (int i = 4 - 1; i >= 0; i--) {
-            buffer.put((byte) ((value % 10) | ((value / 10 % 10) << 4)));
-            value /= 100;
-        }
-        return buffer.array();
-    }
 
 
 }

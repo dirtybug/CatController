@@ -3,11 +3,14 @@ package com.Runner.CQMiau.spot;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,10 +25,11 @@ import com.Runner.CQMiau.radios.RadioFactory;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-
 public class SpotDetailActivity extends AppCompatActivity {
 
     private LogDatabaseHelper dbHelper;
+    DatePicker datePicker;
+    TimePicker timePicker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,21 +44,21 @@ public class SpotDetailActivity extends AppCompatActivity {
         String callSign = getIntent().getStringExtra("callSign");
         String location = getIntent().getStringExtra("location");
         String flag = getIntent().getStringExtra("flag");
-        String comment = getIntent().getStringExtra("comment");
-
-
         String time = getIntent().getStringExtra("time");
 
         // Bind the data to views
-        TextView frequencyView = findViewById(R.id.frequencyItemView);
-        TextView callSignView = findViewById(R.id.callSignItemView);
+        EditText frequencyView = findViewById(R.id.frequencyItemView);
+        EditText callSignView = findViewById(R.id.callSignItemView);
         TextView locationView = findViewById(R.id.locationItemView);
-        TextView timeView = findViewById(R.id.timeItemView);
+         datePicker = findViewById(R.id.SpotdatePicker);
+        timePicker = findViewById(R.id.SpottimePicker);
+
+        TextView Country = findViewById(R.id.Country);
 
         frequencyView.setText(frequency);
-        callSignView.setText(flag + callSign);
+        Country.setText(flag);
+        callSignView.setText(callSign);
         locationView.setText(location);
-        timeView.setText(time);
 
         // Initialize dropdowns
         Spinner receiveSValueSpinner = findViewById(R.id.receiveSValueSpinner);
@@ -66,60 +70,93 @@ public class SpotDetailActivity extends AppCompatActivity {
         sendSValueSpinner.setAdapter(sValueAdapter);
 
         // Initialize editable time and date field
-        EditText timeDateEditText = findViewById(R.id.timeDateEditText);
         String currentDateAndTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
-        timeDateEditText.setText(currentDateAndTime);
+
+        // Open QRZ link
         Button openLinkButton = findViewById(R.id.openLinkButton);
-        Button sendSpot = findViewById(R.id.SendSpot);
-        sendSpot.setOnClickListener(v -> {
-                    String sentSpot = "DX " + callSign + " " + frequency;
-                    HamRadioClusterConnection.getHandlerObj().sendCommand(sentSpot);
-
-
-                }
-        );
-        // Set up the button click listener
         openLinkButton.setOnClickListener(v -> {
-            // The URL to be opened
-            String url = "https://www.qrz.com/db/" + callSign;
-
-            // Create an intent to open the URL
+            String updatedCallSign = callSignView.getText().toString();
+            String url = "https://www.qrz.com/db/" + updatedCallSign;
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-
-            // Start the activity
             startActivity(intent);
         });
+
+        // Send spot action
+        Button sendSpot = findViewById(R.id.SendSpot);
+        sendSpot.setOnClickListener(v -> {
+            String updatedFrequency = validateFrequency(frequencyView.getText().toString());
+            frequencyView.setText(updatedFrequency);
+
+            String updatedCallSign = callSignView.getText().toString();
+
+            if (updatedFrequency.isEmpty()) {
+                frequencyView.setError("Frequency is required.");
+                return;
+            }
+
+            try {
+                double dfrequency = Double.parseDouble(updatedFrequency);
+                if (dfrequency <= 0) {
+                    frequencyView.setError("Frequency must be a positive number.");
+                    return;
+                }
+
+                String sentSpot = "DX " + updatedCallSign + " " + updatedFrequency;
+                HamRadioClusterConnection.getHandlerObj().sendCommand(sentSpot);
+                Toast.makeText(this, "Spot sent: " + sentSpot, Toast.LENGTH_SHORT).show();
+            } catch (NumberFormatException e) {
+                frequencyView.setError("Invalid frequency. Please enter a valid number.");
+            }
+        });
+
         // Set frequency button action
         Button setFrequencyButton = findViewById(R.id.setFrequencyButton);
         setFrequencyButton.setOnClickListener(v -> {
-            Toast.makeText(this, "Frequency set: " + frequency, Toast.LENGTH_SHORT).show();
+            String updatedFrequency = validateFrequency(frequencyView.getText().toString());
+            frequencyView.setText(updatedFrequency);
 
             ComPortManager.getInstance().Connect();
-
-
             RadioBase radioObj = RadioFactory.getRadio();
+            radioObj.setFrequency(updatedFrequency);
 
-            radioObj.setFrequency(frequency);
-
+            Toast.makeText(this, "Frequency set: " + updatedFrequency, Toast.LENGTH_SHORT).show();
         });
 
         // Save to log book button action
         Button saveLogButton = findViewById(R.id.saveLogButton);
         saveLogButton.setOnClickListener(v -> {
-            String editedTimeDate = timeDateEditText.getText().toString();
+            String updatedFrequency = frequencyView.getText().toString();
+            String updatedCallSign = callSignView.getText().toString();
+            String updatedLocation = locationView.getText().toString();
             int selectedReceiveSValue = Integer.parseInt(receiveSValueSpinner.getSelectedItem().toString());
             int selectedSendSValue = Integer.parseInt(sendSValueSpinner.getSelectedItem().toString());
-
-            dbHelper.insertLog(frequency, callSign, location, editedTimeDate, selectedReceiveSValue, selectedSendSValue);
-
+            int day = datePicker.getDayOfMonth();
+            int month = datePicker.getMonth(); // January = 0
+            int year = datePicker.getYear();
+            int hour = timePicker.getHour();
+            int minute = timePicker.getMinute();
+            String formattedDateTime = String.format(Locale.getDefault(),
+                    "%04d-%02d-%02d %02d:%02d:00", year, month + 1, day, hour, minute);
+            dbHelper.insertLog(updatedFrequency, updatedCallSign, updatedLocation, formattedDateTime, selectedReceiveSValue, selectedSendSValue);
             Toast.makeText(this, "Log saved to database!", Toast.LENGTH_SHORT).show();
         });
     }
 
+    private String validateFrequency(String frequency) {
+        if (!frequency.contains(".")) {
+            return frequency + ".0";
+        }
+        int decimalIndex = frequency.indexOf(".");
+        if (frequency.length() > decimalIndex + 2) {
+            return frequency.substring(0, decimalIndex + 2);
+        }
+        return frequency;
+    }
+
     private Integer[] getSValueRange() {
-        Integer[] sValues = new Integer[9]; // Correct size for 1 to 9
+        Integer[] sValues = new Integer[9];
         for (int i = 0; i < sValues.length; i++) {
-            sValues[i] = i + 1; // Populate 1 to 9
+            sValues[i] = i + 1;
         }
         return sValues;
     }

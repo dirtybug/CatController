@@ -1,14 +1,17 @@
 package com.Runner.CQMiau.logbook;
 
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.Runner.CQMiau.R;
+import com.Runner.CQMiau.spot.SpotDetailActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +28,13 @@ public class ViewLogsActivity extends AppCompatActivity {
         dbHelper = new LogDatabaseHelper(this);
 
         RecyclerView logsRecyclerView = findViewById(R.id.logsRecyclerView);
+        Button addToLogButton = findViewById(R.id.addToLogButton);
+
+        addToLogButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, SpotDetailActivity.class);
+            this.startActivity(intent); // Start the new activity
+
+        });
         logsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         List<Log> logs = getLogsFromDatabase();

@@ -3,8 +3,10 @@ package com.Runner.CQMiau.cqMode;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,10 +31,11 @@ public class CQModeActivity extends AppCompatActivity {
     private static final List<Dx> dxList = new CopyOnWriteArrayList<>(); // Thread-safe shared DX list
 
     private Spinner spinnerReceiveS;
+    DatePicker datePicker;
     private EditText frequecyS;
+    TimePicker timePicker;
     private Spinner spinnerSendS;
     private EditText inputCallSign;
-    private EditText inputTime;
     private Button buttonDXMyself;
     private Button buttonLoadFreqFromRadio;
     private Button buttonSaveLog;
@@ -71,7 +74,14 @@ public class CQModeActivity extends AppCompatActivity {
         // Save other UI states
         outState.putString("frequency", frequecyS.getText().toString());
         outState.putString("callSign", inputCallSign.getText().toString());
-        outState.putString("time", inputTime.getText().toString());
+        int day = datePicker.getDayOfMonth();
+        int month = datePicker.getMonth(); // January = 0
+        int year = datePicker.getYear();
+        int hour = timePicker.getHour();
+        int minute = timePicker.getMinute();
+        String time = String.format(Locale.getDefault(),
+                "%04d-%02d-%02d %02d:%02d:00", year, month + 1, day, hour, minute);
+        outState.putString("time", time);
         outState.putInt("receiveS", spinnerReceiveS.getSelectedItemPosition());
         outState.putInt("sendS", spinnerSendS.getSelectedItemPosition());
     }
@@ -102,7 +112,6 @@ public class CQModeActivity extends AppCompatActivity {
         // Restore other UI states
         frequecyS.setText(savedInstanceState.getString("frequency", ""));
         inputCallSign.setText(savedInstanceState.getString("callSign", ""));
-        inputTime.setText(savedInstanceState.getString("time", ""));
         spinnerReceiveS.setSelection(savedInstanceState.getInt("receiveS", 0));
         spinnerSendS.setSelection(savedInstanceState.getInt("sendS", 0));
 
@@ -126,8 +135,9 @@ public class CQModeActivity extends AppCompatActivity {
         frequecyS = findViewById(R.id.input_frequecy_s);
         spinnerSendS = findViewById(R.id.spinner_sender_s);
         inputCallSign = findViewById(R.id.input_callsign);
-        inputTime = findViewById(R.id.input_time);
-        buttonDXMyself = findViewById(R.id.button_spot_myself);
+         datePicker = findViewById(R.id.cqdatePicker);
+         timePicker = findViewById(R.id.cqtimePicker);
+         buttonDXMyself = findViewById(R.id.button_spot_myself);
         buttonLoadFreqFromRadio = findViewById(R.id.button_loadFreqFromRadio);
         buttonSaveLog = findViewById(R.id.button_SaveLog);
         buttonSetTime = findViewById(R.id.set_currentTime_button);
@@ -161,26 +171,48 @@ public class CQModeActivity extends AppCompatActivity {
         });
 
         buttonSaveLog.setOnClickListener(v -> {
+            int day = datePicker.getDayOfMonth();
+            int month = datePicker.getMonth(); // January = 0
+            int year = datePicker.getYear();
+            int hour = timePicker.getHour();
+            int minute = timePicker.getMinute();
+            String formattedDateTime = String.format(Locale.getDefault(),
+                    "%04d-%02d-%02d %02d:%02d:00", year, month + 1, day, hour, minute);
+
             String callSign = inputCallSign.getText().toString();
-            String editedTimeDate = inputTime.getText().toString();
             String frequency = validateFrequency(frequecyS.getText().toString());
             frequecyS.setText(frequency);
 
             int selectedReceiveSValue = getSpinnerValue(spinnerReceiveS);
             int selectedSendSValue = getSpinnerValue(spinnerSendS);
 
-            dbHelper.insertLog(frequency, callSign, "", editedTimeDate, selectedReceiveSValue, selectedSendSValue);
+            dbHelper.insertLog(frequency, callSign, "", formattedDateTime, selectedReceiveSValue, selectedSendSValue);
             String sentSpot = "DX " + callSign + " " + frequency;
             HamRadioClusterConnection.getHandlerObj().sendCommand(sentSpot);
         });
 
         buttonSetTime.setOnClickListener(v -> {
             Calendar calendar = Calendar.getInstance();
-            String currentDateAndTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+            timePicker.setIs24HourView(true);
 
+            // Get the current date and time
 
-            inputTime.setText(currentDateAndTime);
-            Toast.makeText(this, "Current time set: " + currentDateAndTime, Toast.LENGTH_SHORT).show();
+            int currentYear = calendar.get(Calendar.YEAR);
+            int currentMonth = calendar.get(Calendar.MONTH); // Note: January = 0
+            int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
+            int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
+            int currentMinute = calendar.get(Calendar.MINUTE);
+
+            // Set the current date on DatePicker
+            datePicker.updateDate(currentYear, currentMonth, currentDay);
+
+            // Set the current time on TimePicker
+            timePicker.setHour(currentHour);
+            timePicker.setMinute(currentMinute);
+            String formattedDateTime = String.format(Locale.getDefault(),
+                    "%04d-%02d-%02d %02d:%02d:00", currentYear, currentMonth + 1, currentDay, currentHour, currentMinute);
+
+            Toast.makeText(this, "Current time set: " + formattedDateTime, Toast.LENGTH_SHORT).show();
         });
     }
 
