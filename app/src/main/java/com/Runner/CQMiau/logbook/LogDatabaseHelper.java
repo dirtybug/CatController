@@ -106,7 +106,7 @@ public class LogDatabaseHelper extends SQLiteOpenHelper {
                 String frequency = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_FREQUENCY));
                 String callSign = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CALL_SIGN));
                 String location = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_LOCATION));
-                Long time = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_TIME));
+                long time = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_TIME));
                 int receiveSValue = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_RECEIVE_S_VALUE));
                 int sendSValue = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_SEND_S_VALUE));
 

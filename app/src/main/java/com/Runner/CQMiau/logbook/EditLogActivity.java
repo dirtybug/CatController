@@ -53,14 +53,13 @@ public class EditLogActivity extends AppCompatActivity {
         receiveSValueSpinner.setAdapter(sValueAdapter);
         sendSValueSpinner.setAdapter(sValueAdapter);
         // Fetch log details from the database
-        Cursor cursor = dbHelper.getAllLogs();
-        if (cursor.moveToFirst()) {
-            do {
-                if (cursor.getInt(cursor.getColumnIndexOrThrow(LogDatabaseHelper.COLUMN_ID)) == logId) {
-                    editFrequency.setText(cursor.getString(cursor.getColumnIndexOrThrow(LogDatabaseHelper.COLUMN_FREQUENCY)));
-                    editCallSign.setText(cursor.getString(cursor.getColumnIndexOrThrow(LogDatabaseHelper.COLUMN_CALL_SIGN)));
-                    editLocation.setText(cursor.getString(cursor.getColumnIndexOrThrow(LogDatabaseHelper.COLUMN_LOCATION)));
-                   long time= cursor.getColumnIndexOrThrow(LogDatabaseHelper.COLUMN_TIME);
+        LogBook cursor = dbHelper.getLogById(logId);
+        if (cursor!=null) {
+
+                    editFrequency.setText(cursor.getFrequency());
+                    editCallSign.setText(cursor.getCallSign());
+                    editLocation.setText(cursor.getLocation());
+                   long time= cursor.getTime();
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTimeInMillis(time);
 
@@ -77,14 +76,12 @@ public class EditLogActivity extends AppCompatActivity {
                     // Set TimePicker to Unix time
                     timePicker.setHour(hour);
                     timePicker.setMinute(minute);
-                    receiveSValueSpinner.setSelection(cursor.getInt(cursor.getColumnIndexOrThrow(LogDatabaseHelper.COLUMN_RECEIVE_S_VALUE)) - 1);
-                    sendSValueSpinner.setSelection(cursor.getInt(cursor.getColumnIndexOrThrow(LogDatabaseHelper.COLUMN_SEND_S_VALUE)) - 1);
+                    receiveSValueSpinner.setSelection(cursor.getReceiveSValue()-1);
+                    sendSValueSpinner.setSelection(cursor.getSendSValue()-1);
 
-                    break;
+
                 }
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
+
 
         // Save changes
         saveButton.setOnClickListener(v -> {

@@ -20,9 +20,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:backgroundTint="@color/teal_200"
+
         android:text="@string/add_to_log"
         android:textAllCaps="false"
+
+        android:backgroundTint="@color/teal_200"
         android:textColor="@color/white"
         android:textSize="18sp" />
 </LinearLayout>

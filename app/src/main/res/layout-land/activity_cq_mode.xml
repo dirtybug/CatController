@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -104,39 +103,35 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Time -->
-            <LinearLayout
+            <!-- Date Picker -->
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:orientation="horizontal">
+                android:layout_marginBottom="8dp"
+                android:text="Date" />
 
-                <TextView
-                    android:id="@+id/label_time"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
-                    android:text="Time" />
+            <DatePicker
+                android:background="@color/white"
+                android:id="@+id/cqdatePicker"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:calendarViewShown="false"
+                android:spinnersShown="true" />
 
-                <DatePicker
-                    android:background="@color/white"
+            <!-- Time Picker -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:text="Time" />
 
-                    android:id="@+id/cqdatePicker"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:calendarViewShown="false"
-                    android:spinnersShown="true" />
-
-                <TimePicker
-
-                    android:background="@color/white"
-                    android:id="@+id/cqtimePicker"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:timePickerMode="spinner" />
-            </LinearLayout>
+            <TimePicker
+                android:background="@color/white"
+                android:id="@+id/cqtimePicker"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:timePickerMode="spinner" />
         </LinearLayout>
     </ScrollView>
 

@@ -25,6 +25,6 @@
     <string name="call_sign">Call Sign</string>
     <string name="location">Location</string>
     <string name="log_book">Log Book</string>
-    <string name="add_to_log" />
+    <string name="add_to_log">Add To Log</string>
     <string name="save_changes">Save Changes</string>
 </resources>

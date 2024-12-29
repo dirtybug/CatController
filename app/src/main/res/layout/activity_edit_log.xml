@@ -17,30 +17,51 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
+            <!-- Freq -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="8dp"
-                android:text="Freq"
-                android:textSize="16sp" />
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
 
-            <EditText
-                android:id="@+id/LogeditFrequency"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="Freq"
+                    android:textSize="16sp" />
 
-            <TextView
+                <EditText
+                    android:id="@+id/LogeditFrequency"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Enter Frequency" />
+            </LinearLayout>
+
+            <!-- Callsign -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="8dp"
-                android:text="Callsign"
-                android:textSize="16sp" />
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
 
-            <EditText
-                android:id="@+id/LogeditCallSign"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="Callsign"
+                    android:textSize="16sp" />
 
+                <EditText
+                    android:id="@+id/LogeditCallSign"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Enter Callsign" />
+            </LinearLayout>
+
+            <!-- Location -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -69,6 +90,7 @@
                 android:background="@color/white"
                 android:timePickerMode="spinner" />
 
+            <!-- Receive S-Value -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -81,6 +103,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
+            <!-- Send S-Value -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
