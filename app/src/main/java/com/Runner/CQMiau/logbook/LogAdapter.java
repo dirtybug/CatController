@@ -3,6 +3,7 @@ package com.Runner.CQMiau.logbook;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,12 +24,12 @@ import java.util.List;
 public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
 
 
-    private final List<Log> logs;
+    private final List<LogBook> logs;
     private final Context context;
-    private Log log;
+    private LogBook log;
 
     // Constructor with context and logs
-    public LogAdapter(Context context, List<Log> logs) {
+    public LogAdapter(Context context, List<LogBook> logs) {
         this.context = context;
         this.logs = logs;
     }
@@ -47,7 +48,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
         holder.frequencyView.setText("Frequency: " + log.getFrequency());
         holder.callSignView.setText("Call Sign: " + log.getCallSign());
         holder.locationView.setText("Location: " + log.getLocation());
-        holder.timeView.setText("Time: " + log.getTime());
+        holder.timeView.setText("Time: " + log.getTimeStr());
         holder.receiveSValueView.setText("Receive S: " + log.getReceiveSValue());
         holder.sendSValueView.setText("Send S: " + log.getSendSValue());
 
@@ -89,7 +90,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
                 .append(log.getCallSign()).append(" ");
         adifContent.append("<FREQ:").append(log.getFrequency().length()).append(">")
                 .append(log.getFrequency()).append(" ");
-        adifContent.append("<TIME_ON:").append(log.getTime().length()).append(">")
+        adifContent.append("<TIME_ON:").append(formatTimestampToADIF(log.getTime())).append(">")
                 .append(log.getTime()).append(" ");
         adifContent.append("<RST_SENT:").append(String.valueOf(log.getSendSValue()).length()).append(">")
                 .append(log.getSendSValue()).append(" ");
@@ -107,13 +108,47 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
             FileWriter writer = new FileWriter(adifFile);
             writer.write(adifContent.toString());
             writer.close();
+            offerToShareFile(adifFile);
 
             Toast.makeText(context, "ADIF file generated: " + adifFile.getAbsolutePath(), Toast.LENGTH_LONG).show();
         } catch (IOException e) {
             Toast.makeText(context, "Error generating ADIF file: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
+    private String formatTimestampToADIF(long timestamp) {
+        java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyyMMdd HHmmss", java.util.Locale.getDefault());
+        java.util.Date date = new java.util.Date(timestamp); // Convert milliseconds to Date
+        return dateFormat.format(date); // Format to ADIF-compatible string
+    }
+    private void offerToShareFile(File adifFile) {
+        // Get the URI using FileProvider
+        android.net.Uri fileUri = androidx.core.content.FileProvider.getUriForFile(
+                context,
+                context.getPackageName() + ".fileprovider",
+                adifFile
+        );
 
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, "ADIF File");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "Here is the ADIF file for the log: " + log.getCallSign());
+
+        // Grant temporary read permission for the file
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        Intent chooser = Intent.createChooser(shareIntent, "Share ADIF File");
+        if (shareIntent.resolveActivity(context.getPackageManager()) != null) {
+
+            try {
+                context.startActivity(chooser);
+            } catch (Exception e) {
+                Log.v("LogAdapter", "Error starting share intent: ", e);
+            }
+        } else {
+            Toast.makeText(context, "No app available to share the file", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     @Override
     public int getItemCount() {
@@ -125,7 +160,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
         for (int i = 0; i < logs.size(); i++) {
             if (logs.get(i).getId() == id) {
                 // Reload the updated log from the database
-                Log updatedLog = LogDatabaseHelper.getInstance(context).getLogById(id);
+                LogBook updatedLog = LogDatabaseHelper.getInstance(context).getLogById(id);
                 if (updatedLog != null) {
                     logs.set(i, updatedLog); // Update the specific log in the list
                     notifyItemChanged(i); // Notify RecyclerView to refresh only the updated item

@@ -78,8 +78,7 @@ public class Spot implements Parcelable {
         return comment;
 
     }
-
-    public String getTime() {
+    public String getTimeStr() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         // Convert the timestamp to a Date object
@@ -87,6 +86,13 @@ public class Spot implements Parcelable {
 
         // Format the Date object as a human-readable string
         return sdf.format(date);
+    }
+    public long getTime() {
+
+
+        // Convert the timestamp to a Date object
+        return currentTime;
+
     }
 
     @Override

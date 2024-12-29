@@ -176,8 +176,18 @@ public class CQModeActivity extends AppCompatActivity {
             int year = datePicker.getYear();
             int hour = timePicker.getHour();
             int minute = timePicker.getMinute();
-            String formattedDateTime = String.format(Locale.getDefault(),
-                    "%04d-%02d-%02d %02d:%02d:00", year, month + 1, day, hour, minute);
+
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.YEAR, year);
+            calendar.set(Calendar.MONTH, month); // Note: Month is 0-based
+            calendar.set(Calendar.DAY_OF_MONTH, day);
+            calendar.set(Calendar.HOUR_OF_DAY, hour);
+            calendar.set(Calendar.MINUTE, minute);
+            calendar.set(Calendar.SECOND, 0); // Optional: Set seconds to 0
+            calendar.set(Calendar.MILLISECOND, 0); // Optional: Set milliseconds to 0
+
+            long timeInMillis = calendar.getTimeInMillis();
 
             String callSign = inputCallSign.getText().toString();
             String frequency = validateFrequency(frequecyS.getText().toString());
@@ -186,7 +196,7 @@ public class CQModeActivity extends AppCompatActivity {
             int selectedReceiveSValue = getSpinnerValue(spinnerReceiveS);
             int selectedSendSValue = getSpinnerValue(spinnerSendS);
 
-            dbHelper.insertLog(frequency, callSign, "", formattedDateTime, selectedReceiveSValue, selectedSendSValue);
+            dbHelper.insertLog(frequency, callSign, "", timeInMillis, selectedReceiveSValue, selectedSendSValue);
             String sentSpot = "DX " + callSign + " " + frequency;
             HamRadioClusterConnection.getHandlerObj().sendCommand(sentSpot);
         });

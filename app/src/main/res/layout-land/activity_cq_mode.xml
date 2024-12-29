@@ -6,131 +6,139 @@
     android:padding="16dp">
 
     <!-- Left Section for Form Fields -->
-    <LinearLayout
+    <ScrollView
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="3"
-        android:orientation="vertical">
+        android:fillViewport="true">
 
-        <!-- Call Sign -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-            <TextView
-
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:text="Call Sign" />
-
-            <EditText
-                android:id="@+id/input_callsign"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="Enter Call Sign" />
-        </LinearLayout>
-
-        <!-- Frequency -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:text="Freq" />
-
-            <EditText
-                android:id="@+id/input_frequecy_s"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="Enter Frequency" />
-        </LinearLayout>
-
-        <!-- Send S and Receive S on the Same Row -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:orientation="horizontal">
-
+            <!-- Call Sign -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:layout_marginBottom="16dp"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:text="Receive S Number" />
+                    android:layout_marginEnd="16dp"
+                    android:text="Call Sign" />
 
-                <Spinner
-                    android:id="@+id/spinner_receive_s"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                <EditText
+                    android:id="@+id/input_callsign"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Enter Call Sign" />
             </LinearLayout>
 
+            <!-- Frequency -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:layout_marginBottom="16dp"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:text="Send S Number" />
+                    android:layout_marginEnd="16dp"
+                    android:text="Freq" />
 
-                <Spinner
-                    android:id="@+id/spinner_sender_s"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                <EditText
+                    android:id="@+id/input_frequecy_s"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Enter Frequency" />
+            </LinearLayout>
+
+            <!-- Send S and Receive S -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="Receive S Number" />
+
+                    <Spinner
+                        android:id="@+id/spinner_receive_s"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="Send S Number" />
+
+                    <Spinner
+                        android:id="@+id/spinner_sender_s"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Time -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/label_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:text="Time" />
+
+                <DatePicker
+                    android:background="@color/white"
+
+                    android:id="@+id/cqdatePicker"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:calendarViewShown="false"
+                    android:spinnersShown="true" />
+
+                <TimePicker
+
+                    android:background="@color/white"
+                    android:id="@+id/cqtimePicker"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:timePickerMode="spinner" />
             </LinearLayout>
         </LinearLayout>
-
-        <!-- Time -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/label_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:text="Time" />
-
-
-            <DatePicker
-                android:id="@+id/cqdatePicker"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:calendarViewShown="false"
-                android:spinnersShown="true" />
-
-            <TimePicker
-                android:id="@+id/cqtimePicker"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:timePickerMode="spinner" />
-        </LinearLayout>
-    </LinearLayout>
+    </ScrollView>
 
     <!-- Right Section for Buttons -->
     <LinearLayout
@@ -147,7 +155,7 @@
             android:layout_marginBottom="16dp"
             android:layout_weight="1" />
 
-        <!-- Buttons in groups of 2 -->
+        <!-- Buttons in Groups -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -175,7 +183,6 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
             android:orientation="horizontal">
 
             <Button

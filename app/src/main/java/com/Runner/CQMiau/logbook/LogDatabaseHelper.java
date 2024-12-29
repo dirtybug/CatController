@@ -38,7 +38,7 @@ public class LogDatabaseHelper extends SQLiteOpenHelper {
                 COLUMN_FREQUENCY + " TEXT, " +
                 COLUMN_CALL_SIGN + " TEXT, " +
                 COLUMN_LOCATION + " TEXT, " +
-                COLUMN_TIME + " TEXT, " +
+                COLUMN_TIME + " INTEGER, " +
                 COLUMN_RECEIVE_S_VALUE + " INTEGER, " +
                 COLUMN_SEND_S_VALUE + " INTEGER)";
         db.execSQL(CREATE_TABLE);
@@ -50,7 +50,7 @@ public class LogDatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void insertLog(String frequency, String callSign, String location, String time, int receiveSValue, int sendSValue) {
+    public void insertLog(String frequency, String callSign, String location, Long time, int receiveSValue, int sendSValue) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
@@ -69,7 +69,7 @@ public class LogDatabaseHelper extends SQLiteOpenHelper {
         return db.rawQuery("SELECT * FROM " + TABLE_NAME, null);
     }
 
-    public int updateLog(int id, String frequency, String callSign, String location, String time, int receiveSValue, int sendSValue) {
+    public int updateLog(int id, String frequency, String callSign, String location, long time, int receiveSValue, int sendSValue) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
@@ -88,7 +88,7 @@ public class LogDatabaseHelper extends SQLiteOpenHelper {
         db.delete(TABLE_NAME, COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
     }
 
-    public Log getLogById(int id) {
+    public LogBook getLogById(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(
                 TABLE_NAME, // Table name
@@ -100,17 +100,17 @@ public class LogDatabaseHelper extends SQLiteOpenHelper {
                 null // ORDER BY
         );
 
-        Log log = null;
+        LogBook log = null;
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 String frequency = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_FREQUENCY));
                 String callSign = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CALL_SIGN));
                 String location = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_LOCATION));
-                String time = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TIME));
+                Long time = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_TIME));
                 int receiveSValue = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_RECEIVE_S_VALUE));
                 int sendSValue = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_SEND_S_VALUE));
 
-                log = new Log(id, frequency, callSign, location, time, receiveSValue, sendSValue);
+                log = new LogBook(id, frequency, callSign, location, time, receiveSValue, sendSValue);
             }
             cursor.close();
         }

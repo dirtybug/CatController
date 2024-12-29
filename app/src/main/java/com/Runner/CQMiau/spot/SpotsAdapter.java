@@ -49,7 +49,7 @@ public class SpotsAdapter extends RecyclerView.Adapter<SpotViewHolder> {
 
         holder.callSignView.setText(spot.getFlag() + spot.getCallSign());
         holder.locationView.setText(spot.getComment());
-        holder.time.setText(spot.getTime());
+        holder.time.setText(spot.getTimeStr());
         holder.bind(spot, context);
     }
 

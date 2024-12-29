@@ -37,13 +37,13 @@ public class ViewLogsActivity extends AppCompatActivity {
         });
         logsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        List<Log> logs = getLogsFromDatabase();
+        List<LogBook> logs = getLogsFromDatabase();
         LogAdapter adapter = new LogAdapter(this, logs);
         logsRecyclerView.setAdapter(adapter);
     }
 
-    private List<Log> getLogsFromDatabase() {
-        List<Log> logs = new ArrayList<>();
+    private List<LogBook> getLogsFromDatabase() {
+        List<LogBook> logs = new ArrayList<>();
         Cursor cursor = dbHelper.getAllLogs();
         if (cursor.moveToFirst()) {
             do {
@@ -51,11 +51,11 @@ public class ViewLogsActivity extends AppCompatActivity {
                 String frequency = cursor.getString(cursor.getColumnIndexOrThrow(LogDatabaseHelper.COLUMN_FREQUENCY));
                 String callSign = cursor.getString(cursor.getColumnIndexOrThrow(LogDatabaseHelper.COLUMN_CALL_SIGN));
                 String location = cursor.getString(cursor.getColumnIndexOrThrow(LogDatabaseHelper.COLUMN_LOCATION));
-                String time = cursor.getString(cursor.getColumnIndexOrThrow(LogDatabaseHelper.COLUMN_TIME));
+                long time = cursor.getLong(cursor.getColumnIndexOrThrow(LogDatabaseHelper.COLUMN_TIME));
                 int receiveSValue = cursor.getInt(cursor.getColumnIndexOrThrow(LogDatabaseHelper.COLUMN_RECEIVE_S_VALUE));
                 int sendSValue = cursor.getInt(cursor.getColumnIndexOrThrow(LogDatabaseHelper.COLUMN_SEND_S_VALUE));
 
-                logs.add(new Log(id, frequency, callSign, location, time, receiveSValue, sendSValue));
+                logs.add(new LogBook(id, frequency, callSign, location, time, receiveSValue, sendSValue));
             } while (cursor.moveToNext());
         }
         cursor.close();

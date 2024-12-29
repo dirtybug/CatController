@@ -30,7 +30,7 @@ public class SpotViewHolder extends RecyclerView.ViewHolder {
         frequencyView.setText(spot.getFrequency());
         callSignView.setText(spot.getFlag() + spot.getCallSign());
         locationView.setText(spot.getComment());
-        time.setText(spot.getTime());
+        time.setText(spot.getTimeStr());
 
         // Set click listener to open SpotDetailActivity
         itemView.setOnClickListener(v -> {
@@ -42,7 +42,7 @@ public class SpotViewHolder extends RecyclerView.ViewHolder {
             intent.putExtra("location", spot.getLocation());
             intent.putExtra("comment", spot.getComment());
 
-            intent.putExtra("time", spot.getTime());
+            intent.putExtra(SpotDetailActivity.TIME, spot.getTime());
             intent.putExtra("flag", spot.getFlag());
 
 
