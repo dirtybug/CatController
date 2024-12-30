@@ -44,6 +44,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull LogViewHolder holder, int position) {
         this.log = logs.get(position);
+        LogBook currentLog = logs.get(position);
 
         holder.frequencyView.setText("Frequency: " + log.getFrequency());
         holder.callSignView.setText("Call Sign: " + log.getCallSign());
@@ -51,13 +52,14 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
         holder.timeView.setText("Time: " + log.getTimeStr());
         holder.receiveSValueView.setText("Receive S: " + log.getReceiveSValue());
         holder.sendSValueView.setText("Send S: " + log.getSendSValue());
+        holder.id=log.getId();
 
 
         holder.generateAdifButton.setOnClickListener(v -> generateAdifFile());
         // Handle Edit Button
         holder.editButton.setOnClickListener(v -> {
             Intent intent = new Intent(context, EditLogActivity.class);
-            intent.putExtra("LOG_ID", log.getId());
+            intent.putExtra("LOG_ID", currentLog.getId());
             EditLogActivity.setLogUpdateCallback(this::updateLogs);
             context.startActivity(intent);
         });
@@ -173,6 +175,8 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
     static class LogViewHolder extends RecyclerView.ViewHolder {
         TextView frequencyView, generateAdifButton, callSignView, locationView, timeView, receiveSValueView, sendSValueView;
         Button editButton, deleteButton;
+        int id;
+
 
         public LogViewHolder(@NonNull View itemView) {
             super(itemView);

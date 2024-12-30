@@ -112,6 +112,7 @@ public class LogDatabaseHelper extends SQLiteOpenHelper {
 
                 log = new LogBook(id, frequency, callSign, location, time, receiveSValue, sendSValue);
             }
+
             cursor.close();
         }
         return log;

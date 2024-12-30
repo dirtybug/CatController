@@ -1,9 +1,9 @@
 package com.Runner.CQMiau.cqMode;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TimePicker;
@@ -20,71 +20,26 @@ import com.Runner.CQMiau.logbook.LogDatabaseHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class CQModeActivity extends AppCompatActivity {
 
     private static CQModeActivity instance; // Static reference to the activity instance
-    private static final List<Dx> dxList = new CopyOnWriteArrayList<>(); // Thread-safe shared DX list
+    private static final CopyOnWriteArrayList<Dx> dxList = new CopyOnWriteArrayList<>(); // Thread-safe shared DX list
 
     private Spinner spinnerReceiveS;
-    DatePicker datePicker;
-    private EditText frequecyS;
-    TimePicker timePicker;
     private Spinner spinnerSendS;
+    private EditText frequencyS;
     private EditText inputCallSign;
+    private EditText dateEditText;
+    private TimePicker timePicker;
     private Button buttonDXMyself;
-    private Button buttonLoadFreqFromRadio;
-    private Button buttonSaveLog;
     private Button buttonSetTime;
+    private Button buttonSaveLog;
     private RecyclerView recyclerView;
     private DXAdapter dxAdapter;
     private LogDatabaseHelper dbHelper;
-
-    /**
-     * Adds a new DX entry to the RecyclerView.
-     */
-    public static void addNewDX(String callSign, String flag, String comment, String location) {
-        synchronized (dxList) {
-            Dx newDx = new Dx(callSign, flag, comment, location);
-            dxList.add(newDx);
-
-            // Update the UI if the activity is running
-            if (instance != null) {
-                instance.runOnUiThread(() -> {
-                    instance.dxAdapter.notifyItemInserted(dxList.size() - 1);
-                    Toast.makeText(instance, "DX added: " + callSign, Toast.LENGTH_SHORT).show();
-                });
-            }
-        }
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        // Save the state of RecyclerView
-        if (recyclerView != null) {
-            outState.putParcelable("recyclerViewState", recyclerView.getLayoutManager().onSaveInstanceState());
-        }
-
-        // Save other UI states
-        outState.putString("frequency", frequecyS.getText().toString());
-        outState.putString("callSign", inputCallSign.getText().toString());
-        int day = datePicker.getDayOfMonth();
-        int month = datePicker.getMonth(); // January = 0
-        int year = datePicker.getYear();
-        int hour = timePicker.getHour();
-        int minute = timePicker.getMinute();
-        String time = String.format(Locale.getDefault(),
-                "%04d-%02d-%02d %02d:%02d:00", year, month + 1, day, hour, minute);
-        outState.putString("time", time);
-        outState.putInt("receiveS", spinnerReceiveS.getSelectedItemPosition());
-        outState.putInt("sendS", spinnerSendS.getSelectedItemPosition());
-    }
 
     public static CQModeActivity getInstance() {
         if (instance == null) {
@@ -93,9 +48,18 @@ public class CQModeActivity extends AppCompatActivity {
         return instance;
     }
 
-    /**
-     * Populates the call sign field with the provided value.
-     */
+    public static void addNewDX(String callSign, String flag, String comment, String location) {
+        Dx newDx = new Dx(callSign, flag, comment, location);
+        dxList.add(newDx);
+
+        if (instance != null) {
+            instance.runOnUiThread(() -> {
+                instance.dxAdapter.notifyItemInserted(dxList.size() - 1);
+                Toast.makeText(instance, "DX added: " + callSign, Toast.LENGTH_SHORT).show();
+            });
+        }
+    }
+
     public static void populateCallSign(String callSign) {
         if (instance != null) {
             instance.inputCallSign.setText(callSign);
@@ -106,48 +70,28 @@ public class CQModeActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-
-        // Restore other UI states
-        frequecyS.setText(savedInstanceState.getString("frequency", ""));
-        inputCallSign.setText(savedInstanceState.getString("callSign", ""));
-        spinnerReceiveS.setSelection(savedInstanceState.getInt("receiveS", 0));
-        spinnerSendS.setSelection(savedInstanceState.getInt("sendS", 0));
-
-        // Restore RecyclerView state
-        if (savedInstanceState.containsKey("recyclerViewState")) {
-            recyclerView.getLayoutManager().onRestoreInstanceState(savedInstanceState.getParcelable("recyclerViewState"));
-        }
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cq_mode);
-        this.dbHelper = new LogDatabaseHelper(this);
 
-        // Assign static reference
+        dbHelper = new LogDatabaseHelper(this);
         instance = this;
 
-        // Initialize Views
+        // Initialize views
         spinnerReceiveS = findViewById(R.id.spinner_receive_s);
-        frequecyS = findViewById(R.id.input_frequecy_s);
+        frequencyS = findViewById(R.id.input_frequecy_s);
         spinnerSendS = findViewById(R.id.spinner_sender_s);
         inputCallSign = findViewById(R.id.input_callsign);
-         datePicker = findViewById(R.id.cqdatePicker);
-         timePicker = findViewById(R.id.cqtimePicker);
-         buttonDXMyself = findViewById(R.id.button_spot_myself);
-        buttonLoadFreqFromRadio = findViewById(R.id.button_loadFreqFromRadio);
+        dateEditText = findViewById(R.id.cqeditDate);
+        timePicker = findViewById(R.id.cqtimePicker);
+        buttonDXMyself = findViewById(R.id.button_spot_myself);
+        buttonSetTime = findViewById(R.id.cqsetNowButton);
         buttonSaveLog = findViewById(R.id.button_SaveLog);
-        buttonSetTime = findViewById(R.id.set_currentTime_button);
         recyclerView = findViewById(R.id.recycler_view);
 
-        // Setup Spinners
-        Integer[] sValues = getSValueRange();
-        ArrayAdapter<Integer> sValueAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, sValues);
+        // Setup spinners
+        ArrayAdapter<Integer> sValueAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, getSValueRange());
         sValueAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
         spinnerReceiveS.setAdapter(sValueAdapter);
         spinnerSendS.setAdapter(sValueAdapter);
 
@@ -156,73 +100,75 @@ public class CQModeActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(dxAdapter);
 
-        // Assign Functions to Buttons
+        // Handle "Spot Myself" button
         buttonDXMyself.setOnClickListener(v -> {
-            String frequency = validateFrequency(frequecyS.getText().toString());
-            frequecyS.setText(frequency);
-            String callsign = UserSettingsActivity.getCallsign(this);
+            String frequency = validateFrequency(frequencyS.getText().toString());
+            frequencyS.setText(frequency);
+            String callSign = UserSettingsActivity.getCallsign(this);
 
-            String sentSpot = "DX " + callsign + " " + frequency;
-            HamRadioClusterConnection.getHandlerObj().sendCommand(sentSpot);
-        });
-
-        buttonLoadFreqFromRadio.setOnClickListener(v -> {
-            // TODO: Implement "Load Frequency from Radio" logic
-        });
-
-        buttonSaveLog.setOnClickListener(v -> {
-            int day = datePicker.getDayOfMonth();
-            int month = datePicker.getMonth(); // January = 0
-            int year = datePicker.getYear();
-            int hour = timePicker.getHour();
-            int minute = timePicker.getMinute();
-
-
-            Calendar calendar = Calendar.getInstance();
-            calendar.set(Calendar.YEAR, year);
-            calendar.set(Calendar.MONTH, month); // Note: Month is 0-based
-            calendar.set(Calendar.DAY_OF_MONTH, day);
-            calendar.set(Calendar.HOUR_OF_DAY, hour);
-            calendar.set(Calendar.MINUTE, minute);
-            calendar.set(Calendar.SECOND, 0); // Optional: Set seconds to 0
-            calendar.set(Calendar.MILLISECOND, 0); // Optional: Set milliseconds to 0
-
-            long timeInMillis = calendar.getTimeInMillis();
-
-            String callSign = inputCallSign.getText().toString();
-            String frequency = validateFrequency(frequecyS.getText().toString());
-            frequecyS.setText(frequency);
-
-            int selectedReceiveSValue = getSpinnerValue(spinnerReceiveS);
-            int selectedSendSValue = getSpinnerValue(spinnerSendS);
-
-            dbHelper.insertLog(frequency, callSign, "", timeInMillis, selectedReceiveSValue, selectedSendSValue);
             String sentSpot = "DX " + callSign + " " + frequency;
             HamRadioClusterConnection.getHandlerObj().sendCommand(sentSpot);
+            Toast.makeText(this, "Spot sent: " + sentSpot, Toast.LENGTH_SHORT).show();
         });
 
+        // Handle "Set Time" button
         buttonSetTime.setOnClickListener(v -> {
+            Calendar calendar = Calendar.getInstance(); // Get the current date and time
+
+            // Format the date and set it to the dateEditText
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+            String currentDate = dateFormat.format(calendar.getTime());
+            dateEditText.setText(currentDate);
+
+            // Set the current time in the TimePicker
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                timePicker.setHour(calendar.get(Calendar.HOUR_OF_DAY));
+                timePicker.setMinute(calendar.get(Calendar.MINUTE));
+            } else {
+                timePicker.setCurrentHour(calendar.get(Calendar.HOUR_OF_DAY));
+                timePicker.setCurrentMinute(calendar.get(Calendar.MINUTE));
+            }
+
+            // Show a confirmation toast
+            Toast.makeText(this, "Date and time set to now", Toast.LENGTH_SHORT).show();
+        });
+
+
+        // Handle "Save Log" button
+        buttonSaveLog.setOnClickListener(v -> {
+            try {
+                String frequency = validateFrequency(frequencyS.getText().toString());
+                frequencyS.setText(frequency);
+
+                String callSign = inputCallSign.getText().toString();
+                int receiveS = getSpinnerValue(spinnerReceiveS);
+                int sendS = getSpinnerValue(spinnerSendS);
+
+                Calendar calendar = Calendar.getInstance();
+                SimpleDateFormat inputDateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                calendar.setTime(inputDateFormat.parse(dateEditText.getText().toString()));
+
+                calendar.set(Calendar.HOUR_OF_DAY, timePicker.getHour());
+                calendar.set(Calendar.MINUTE, timePicker.getMinute());
+                calendar.set(Calendar.SECOND, 0);
+                calendar.set(Calendar.MILLISECOND, 0);
+
+                long timeInMillis = calendar.getTimeInMillis();
+
+                dbHelper.insertLog(frequency, callSign, "", timeInMillis, receiveS, sendS);
+                Toast.makeText(this, "Log saved successfully!", Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                Toast.makeText(this, "Error saving log: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Handle DateEditText click
+        dateEditText.setOnClickListener(v -> {
             Calendar calendar = Calendar.getInstance();
-            timePicker.setIs24HourView(true);
-
-            // Get the current date and time
-
-            int currentYear = calendar.get(Calendar.YEAR);
-            int currentMonth = calendar.get(Calendar.MONTH); // Note: January = 0
-            int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
-            int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
-            int currentMinute = calendar.get(Calendar.MINUTE);
-
-            // Set the current date on DatePicker
-            datePicker.updateDate(currentYear, currentMonth, currentDay);
-
-            // Set the current time on TimePicker
-            timePicker.setHour(currentHour);
-            timePicker.setMinute(currentMinute);
-            String formattedDateTime = String.format(Locale.getDefault(),
-                    "%04d-%02d-%02d %02d:%02d:00", currentYear, currentMonth + 1, currentDay, currentHour, currentMinute);
-
-            Toast.makeText(this, "Current time set: " + formattedDateTime, Toast.LENGTH_SHORT).show();
+            new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+                String date = String.format(Locale.getDefault(), "%02d/%02d/%04d", dayOfMonth, month + 1, year);
+                dateEditText.setText(date);
+            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
         });
     }
 
@@ -232,9 +178,6 @@ public class CQModeActivity extends AppCompatActivity {
         instance = null; // Clear the static reference
     }
 
-    /**
-     * Validates the frequency, ensuring proper format.
-     */
     private String validateFrequency(String frequency) {
         if (!frequency.contains(".")) {
             return frequency + ".0";
@@ -246,28 +189,20 @@ public class CQModeActivity extends AppCompatActivity {
         return frequency;
     }
 
-    /**
-     * Safely gets the value from a Spinner as an integer.
-     */
     private int getSpinnerValue(Spinner spinner) {
         try {
             return Integer.parseInt(spinner.getSelectedItem().toString());
         } catch (NumberFormatException e) {
             Toast.makeText(this, "Invalid S-value selection", Toast.LENGTH_SHORT).show();
-            return 0; // Default value in case of error
+            return 0;
         }
     }
 
-    /**
-     * Returns an array of S-numbers (1 to 9).
-     */
     private Integer[] getSValueRange() {
-        Integer[] sValues = new Integer[9]; // Correct size for 1 to 9
+        Integer[] sValues = new Integer[9];
         for (int i = 0; i < sValues.length; i++) {
-            sValues[i] = i + 1; // Populate 1 to 9
+            sValues[i] = i + 1;
         }
         return sValues;
     }
 }
-
-

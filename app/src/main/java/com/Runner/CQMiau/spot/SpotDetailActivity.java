@@ -1,9 +1,9 @@
 package com.Runner.CQMiau.spot;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -24,14 +24,14 @@ import com.Runner.CQMiau.radios.RadioFactory;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
+
 public class SpotDetailActivity extends AppCompatActivity {
 
     public static final String TIME = "time";
     private LogDatabaseHelper dbHelper;
-    DatePicker datePicker;
-    TimePicker timePicker;
+    private EditText dateEditText;
+    private TimePicker timePicker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,31 +52,24 @@ public class SpotDetailActivity extends AppCompatActivity {
         EditText frequencyView = findViewById(R.id.frequencyItemView);
         EditText callSignView = findViewById(R.id.callSignItemView);
         TextView locationView = findViewById(R.id.locationItemView);
-         datePicker = findViewById(R.id.SpotdatePicker);
+        dateEditText = findViewById(R.id.editDate);
         timePicker = findViewById(R.id.SpottimePicker);
         timePicker.setIs24HourView(true); // Set to 24-hour format
+        Button setNowButton = findViewById(R.id.setNowButton);
 
-        // Convert Unix time to Calendar instance
+        // Set up initial time from intent
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(time);
 
-        // Extract date and time components
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH); // January = 0
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        dateEditText.setText(dateFormat.format(calendar.getTime()));
 
-        // Set DatePicker to Unix time
-        datePicker.updateDate(year, month, day);
+        timePicker.setHour(calendar.get(Calendar.HOUR_OF_DAY));
+        timePicker.setMinute(calendar.get(Calendar.MINUTE));
 
-        // Set TimePicker to Unix time
-        timePicker.setHour(hour);
-        timePicker.setMinute(minute);
-        TextView Country = findViewById(R.id.Country);
-
+        TextView countryView = findViewById(R.id.Country);
         frequencyView.setText(frequency);
-        Country.setText(flag);
+        countryView.setText(flag);
         callSignView.setText(callSign);
         locationView.setText(location);
 
@@ -89,7 +82,22 @@ public class SpotDetailActivity extends AppCompatActivity {
         receiveSValueSpinner.setAdapter(sValueAdapter);
         sendSValueSpinner.setAdapter(sValueAdapter);
 
+        // Date picker dialog for dateEditText
+        dateEditText.setOnClickListener(v -> {
+            final Calendar newCalendar = Calendar.getInstance();
+            DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+                newCalendar.set(year, month, dayOfMonth);
+                dateEditText.setText(dateFormat.format(newCalendar.getTime()));
+            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+            datePickerDialog.show();
+        });
 
+        setNowButton.setOnClickListener(v -> {
+            Calendar now = Calendar.getInstance();
+            dateEditText.setText(dateFormat.format(now.getTime()));
+            timePicker.setHour(now.get(Calendar.HOUR_OF_DAY));
+            timePicker.setMinute(now.get(Calendar.MINUTE));
+        });
 
         // Open QRZ link
         Button openLinkButton = findViewById(R.id.openLinkButton);
@@ -149,27 +157,23 @@ public class SpotDetailActivity extends AppCompatActivity {
             String updatedLocation = locationView.getText().toString();
             int selectedReceiveSValue = Integer.parseInt(receiveSValueSpinner.getSelectedItem().toString());
             int selectedSendSValue = Integer.parseInt(sendSValueSpinner.getSelectedItem().toString());
-            int dday = datePicker.getDayOfMonth();
-            int dmonth = datePicker.getMonth(); // January = 0
-            int dyear = datePicker.getYear();
-            int dhour = timePicker.getHour();
-            int dminute = timePicker.getMinute();
 
-            Calendar dcalendar = Calendar.getInstance();
-            dcalendar.set(Calendar.YEAR, dyear);
-            dcalendar.set(Calendar.MONTH, dmonth); // Note: Month is 0-based
-            dcalendar.set(Calendar.DAY_OF_MONTH, dday);
-            dcalendar.set(Calendar.HOUR_OF_DAY, dhour);
-            dcalendar.set(Calendar.MINUTE, dminute);
-            dcalendar.set(Calendar.SECOND, 0); // Optional: Set seconds to 0
-            dcalendar.set(Calendar.MILLISECOND, 0); // Optional: Set milliseconds to 0
+            try {
+                Calendar logCalendar = Calendar.getInstance();
+                SimpleDateFormat inputDateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                logCalendar.setTime(inputDateFormat.parse(dateEditText.getText().toString()));
+                logCalendar.set(Calendar.HOUR_OF_DAY, timePicker.getHour());
+                logCalendar.set(Calendar.MINUTE, timePicker.getMinute());
+                logCalendar.set(Calendar.SECOND, 0);
+                logCalendar.set(Calendar.MILLISECOND, 0);
 
-// Convert to Unix time in milliseconds
-            long timeInMillis = calendar.getTimeInMillis();
+                long timeInMillis = logCalendar.getTimeInMillis();
 
-
-            dbHelper.insertLog(updatedFrequency, updatedCallSign, updatedLocation, timeInMillis, selectedReceiveSValue, selectedSendSValue);
-            Toast.makeText(this, "Log saved to database!", Toast.LENGTH_SHORT).show();
+                dbHelper.insertLog(updatedFrequency, updatedCallSign, updatedLocation, timeInMillis, selectedReceiveSValue, selectedSendSValue);
+                Toast.makeText(this, "Log saved to database!", Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                Toast.makeText(this, "Error saving log: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         });
     }
 

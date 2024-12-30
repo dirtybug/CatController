@@ -103,20 +103,28 @@
             </LinearLayout>
 
             <!-- Date Picker -->
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="8dp"
-                android:text="Date" />
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
 
-            <DatePicker
-                android:background="@color/white"
-                android:id="@+id/cqdatePicker"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:calendarViewShown="false"
-                android:spinnersShown="true" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="Date"
+                    android:textSize="16sp" />
+
+                <EditText
+                    android:id="@+id/cqeditDate"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Select Date"
+                    android:focusable="false"
+                    android:clickable="true" />
+            </LinearLayout>
 
             <!-- Time Picker -->
             <TextView
@@ -146,56 +154,57 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="horizontal"
+        android:gravity="center">
 
-        <!-- First Row of Buttons -->
+        <!-- First Column -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_weight="1"
+            android:orientation="vertical">
 
             <Button
                 android:id="@+id/button_spot_myself"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_marginBottom="8dp"
                 android:backgroundTint="@color/teal_200"
-                android:text="Spot Myself" />
+                android:text="Spot Myself"
+                android:textColor="@color/white" />
 
             <Button
                 android:id="@+id/button_loadFreqFromRadio"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_weight="1"
                 android:backgroundTint="@color/teal_200"
-                android:text="Load Freq From Radio" />
+                android:text="Load Freq From Radio"
+                android:textColor="@color/white" />
         </LinearLayout>
 
-        <!-- Second Row of Buttons -->
+        <!-- Second Column -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal">
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/cqsetNowButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:backgroundTint="@color/teal_200"
+                android:text="Set Now"
+                android:textColor="@color/white" />
 
             <Button
                 android:id="@+id/button_SaveLog"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:backgroundTint="@color/teal_200"
-                android:text="Save Log" />
-
-            <Button
-                android:id="@+id/set_currentTime_button"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_weight="1"
-                android:backgroundTint="@color/teal_200"
-                android:text="Set Time" />
+                android:text="Save Log"
+                android:textColor="@color/white" />
         </LinearLayout>
     </LinearLayout>
-
 </LinearLayout>
