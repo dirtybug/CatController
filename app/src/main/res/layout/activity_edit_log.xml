@@ -78,15 +78,15 @@
             <DatePicker
                 android:id="@+id/LogdatePicker"
                 android:layout_width="wrap_content"
-                android:layout_height="308dp"
+                android:layout_height="wrap_content"
                 android:background="@color/white"
                 android:calendarViewShown="false"
                 android:spinnersShown="true" />
 
             <TimePicker
                 android:id="@+id/LogtimePicker"
-                android:layout_width="348dp"
-                android:layout_height="92dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:background="@color/white"
                 android:timePickerMode="spinner" />
 
